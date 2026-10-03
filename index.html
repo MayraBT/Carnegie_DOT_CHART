@@ -228,6 +228,32 @@
   tr.thisweek td.wk{background:var(--teal-tint)}
   .when.link{cursor:pointer} .when.link:hover{text-decoration:underline}
   footer{padding:14px 24px 28px;font-size:13px;color:var(--ink-3);border-top:1px solid var(--line)}
+  .helpbtn{align-self:center;display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border:1.5px solid var(--teal);border-radius:8px;color:var(--teal-deep);font-weight:700;font-size:15px;background:#fff}
+  .helpbtn:hover{background:var(--teal-ghost)}
+  .helpbtn svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2}
+  dialog#help{border:0;padding:0;border-radius:12px;width:min(1080px,96vw);height:min(88vh,900px);box-shadow:0 20px 60px rgba(0,0,0,.25);color:var(--ink)}
+  dialog#help::backdrop{background:rgba(20,40,40,.45)}
+  .hwrap{display:grid;grid-template-columns:260px 1fr;height:100%}
+  .hnav{background:var(--paper-2);border-right:1px solid var(--line);padding:16px 10px;overflow:auto}
+  .hnav h2{font-size:16px;margin:4px 8px 12px}
+  .hnav button{display:block;width:100%;text-align:left;padding:9px 10px;border-radius:8px;font-size:15px;color:var(--ink-2);margin:0 0 2px}
+  .hnav button small{display:block;font-size:12px;color:var(--ink-3)}
+  .hnav button[aria-current="true"]{background:#fff;color:var(--teal-deep);font-weight:700;box-shadow:inset 3px 0 0 var(--teal)}
+  .hbody{overflow:auto;padding:22px 28px 32px;position:relative}
+  .hclose{position:absolute;top:12px;right:14px;font-size:14px;padding:6px 10px;border:1.5px solid var(--line);border-radius:6px;background:#fff}
+  .hbody h3{margin:0 0 4px;font-size:22px}
+  .hbody .who{color:var(--ink-3);font-size:14px;margin:0 0 14px}
+  .hbody .why{max-width:70ch;margin:0 0 16px}
+  .hbody h4{font-size:14px;text-transform:uppercase;letter-spacing:.04em;color:var(--teal-deep);margin:18px 0 6px}
+  .hbody ol,.hbody ul{margin:0 0 6px;padding-left:22px;max-width:72ch}
+  .hbody li{margin:0 0 6px}
+  .hbody .tab{display:inline-block;font-size:13px;padding:0 7px;border-radius:4px;background:var(--teal-tint);color:var(--teal-deep);font-weight:700;white-space:nowrap}
+  .hbody .soon{border:1.5px dashed #b9a6da;background:#f7f4fb;border-radius:10px;padding:10px 14px;margin:16px 0 0;max-width:72ch}
+  .hbody .soon b{color:#5b4a80}
+  .trybar{display:flex;flex-wrap:wrap;gap:8px;margin:18px 0 0}
+  .trybar button{padding:8px 14px;border-radius:8px;background:var(--teal);color:#fff;font-weight:700;font-size:14px}
+  .trybar button.alt{background:#fff;color:var(--teal-deep);border:1.5px solid var(--teal)}
+  @media (max-width:760px){.hwrap{grid-template-columns:1fr;grid-template-rows:auto 1fr}.hnav{display:flex;overflow-x:auto;gap:4px;padding:8px;border-right:0;border-bottom:1px solid var(--line)}.hnav h2{display:none}.hnav button{white-space:nowrap;width:auto}.hnav button small{display:none}.hbody{padding:16px 16px 28px}}
   .kbd{font-size:12px;border:1px solid var(--line);border-radius:4px;padding:0 5px;color:var(--ink-2)}
 </style>
 </head>
@@ -235,6 +261,7 @@
 <header>
   <h1 id="ttl">Grade 8 · TEKS Lookup<small id="subttl">Texas Math Solution (Carnegie Learning) · standards ↔ lessons</small></h1>
   <div class="course" role="group" aria-label="Course"><button data-c="g6" aria-pressed="true">6th Advanced</button><button data-c="a7" aria-pressed="false">7th Advanced</button><button data-c="g8" aria-pressed="false">Grade 8</button><button data-c="a1ms" aria-pressed="false">Algebra I · MS</button><button data-c="a1hs" aria-pressed="false">Algebra I · HS</button></div>
+  <button class="helpbtn" id="helpOpen" aria-haspopup="dialog"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .9-1 1.6v.6M12 17h.01"/></svg>How to use</button>
   <div class="search">
     <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
     <input id="q" type="search" placeholder="Type a TEKS (6.4B, 8.5I, A.5A) or a lesson word (ratio, slope, quadratic)" autocomplete="off" aria-label="Search standards and lessons">
@@ -299,6 +326,7 @@
   </section>
 </main>
 
+<dialog id="help" aria-labelledby="helpTitle"><div class="hwrap"><nav class="hnav" id="hnav"><h2 id="helpTitle">How to use this tool</h2></nav><div class="hbody" id="hbody"></div></div></dialog>
 <footer id="foot"></footer>
 
 <script>
@@ -2548,6 +2576,105 @@ function renderSearch(raw){
 $('fQ').querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>{ const q=+b.dataset.q; fQsel.has(q)?fQsel.delete(q):fQsel.add(q); b.setAttribute('aria-pressed',fQsel.has(q)); applyStdFilters(); }));
 document.addEventListener('keydown',e=>{ if(e.key==='/' && document.activeElement!==$('q')){ e.preventDefault(); $('q').focus(); } });
 
+/* ---------- how-to-use guide ---------- */
+const SAMPLE={g6:'6.4B',a7:'8.5I',g8:'8.5I',a1ms:'A.5A',a1hs:'A.5A'};
+const T=n=>`<span class="tab">${n}</span>`;
+const HELP=[
+ {id:'tour',title:'Quick tour',sub:'What each tab does',who:'Everyone · start here',
+  why:'Pick a course at the top, then look at it five ways. Every TEKS chip and lesson title is clickable, so you can jump between views.',
+  steps:[`${T('By standard')} Pick a TEKS. You get the student expectation, readiness or supporting, vertical alignment, released STAAR items, and every lesson that teaches it, with its dates.`,
+   `${T('By lesson')} Every lesson with its TEKS: ● fully covered, ○ partially covered. Each lesson shows when it is on the IPC.`,
+   `${T('Full grid')} The whole dot chart: lessons down the side, TEKS across the top.`,
+   `${T('STAAR performance')} Statewide percent correct on each released item, sortable. Filter to readiness standards or items under 50%.`,
+   `${T('Calendar')} The IPC day by day. Today is outlined in teal, and the days that teach the TEKS you picked are outlined in amber.`,
+   `Search by TEKS code (8.5I) or by a word (slope, ratio). Copy the address bar to share a standard: it opens the same course and TEKS.`],
+  try:[['std','Open a sample standard'],['cal','Go to this week']]},
+ {id:'walks',title:'Instructional walks',sub:'Is instruction on pace?',who:'Coordinators · coaches · campus leaders',
+  why:'Before you step in, know what the IPC says should be happening today, what the TEKS asks students to do, and how STAAR tests it.',
+  steps:[`Open ${T('Calendar')} and click <b>Go to this week</b>. Find today's lesson for the course you are visiting.`,
+   `Click the lesson's TEKS chips. Read the student expectation: what is the verb (represent, solve, compare, justify)?`,
+   `Expand one released item under ${T('By standard')} to see how the standard is tested.`,
+   `In the room, compare what you see to the IPC: same lesson? If not, count the class days behind or ahead on the calendar.`],
+  look:['The posted objective matches the student expectation, not only the lesson title.','The task asks students to do what the verb says, at the level of the released item.','Student work uses the same kinds of representations the STAAR items use: tables, graphs, number lines, equations.','A student can say what they are learning and why it matters.'],
+  try:[['cal','Go to this week'],['std','See a TEKS with its items']]},
+ {id:'appraisal',title:'Appraisers',sub:'Evidence for alignment and rigor',who:'Principals · APs · appraisers',
+  why:'Use the tool before an observation to know the planned lesson and its standard, and after it to ground feedback in how the TEKS is tested.',
+  steps:[`Before: find the date on the ${T('Calendar')}. Note the lesson, its TEKS, and which are fully (●) or partially (○) covered.`,
+   `Open the readiness standard in ${T('By standard')}. Read the vertical alignment so you know the prior-grade skills students bring.`,
+   `During: compare the objective, the task, and the exit ticket with the student expectation's verb and content.`,
+   `After: in the feedback conversation, show a released item and its most-chosen wrong answer. Ask: "Would your students get this one? What would trip them up?"`],
+  look:['Planning evidence: the lesson is aligned to the TEKS the IPC lists for that day.','Content evidence: questions and tasks reach the depth of the released items, not only recall.','Monitoring evidence: the teacher checks for the misconception behind the most-chosen wrong answer.'],
+  try:[['std','Open a sample standard'],['perf','See items under 50%']]},
+ {id:'planning',title:'Planning',sub:'Partially covered standards',who:'PLCs · teachers · coaches',
+  why:'A ○ means the lesson only touches part of a standard. The tool shows where the rest of it is taught, so you teach the right slice and connect forward.',
+  steps:[`In ${T('By lesson')}, find the lesson you are planning. Note each ○ TEKS.`,
+   `Click a ○ chip. ${T('By standard')} lists every lesson that carries it: find the ● lessons where it is fully taught, earlier or later.`,
+   `Check "Where and when": is the full coverage before or after STAAR? An "after STAAR" tag on a readiness standard needs a plan.`,
+   `Decide which part of the student expectation this lesson owns. Write it into the lesson's success criteria.`,
+   `Use the filters (Readiness only, Taught in Q2) to see what a quarter really covers.`],
+  look:['Teachers can name which part of a partial standard this lesson addresses.','Readiness standards that are only partially covered before STAAR have a reteach or spiral plan.'],
+  try:[['les','Open By lesson'],['std','See every lesson for a TEKS']]},
+ {id:'rigor',title:'Rigor of the work',sub:'Compare tasks to how the TEKS is tested',who:'PLCs · coaches · appraisers',
+  why:'The released items are the clearest picture of the expected rigor. Put the class task next to them.',
+  steps:[`Open the TEKS in ${T('By standard')} and expand its released items.`,
+   `Note the item type (multiple choice, drag and drop, equation editor, graphing), the representation, and the percent correct.`,
+   `Read the most-chosen wrong answer. That is the misconception to plan for.`,
+   `Put the lesson's task or exit ticket beside the item. Is the thinking the same? The representation? The number of steps?`,
+   `In ${T('STAAR performance')}, sort by percent correct or check "Items under 50%" to find the hardest standards in the course.`],
+  look:['Class tasks include the item formats students will see, not only multiple choice.','Numbers and contexts are as demanding as the released items (fractions, negatives, multi-step).','Exit tickets would catch the most-chosen wrong answer.'],
+  try:[['std','Open a sample standard'],['perf','Open STAAR performance']]},
+ {id:'criteria',title:'Success criteria and moves',sub:'Plan and evaluate the lesson',who:'Teachers · PLCs · coaches',
+  why:'Build success criteria from the student expectation itself, then check them against a released item.',
+  steps:[`Read the student expectation in ${T('By standard')}. Mark the verb (what students do), the content, and any conditions ("including…", "using…").`,
+   `Write two or three "I can" statements that use that verb and content.`,
+   `Test them: would a student who meets them answer the released item correctly?`,
+   `Plan teacher moves (model, question, check for the misconception) and student moves (represent, explain, justify) that lead to the criteria.`,
+   `Use vertical alignment to choose a warm-up from the prior-grade standard.`],
+  look:['Success criteria use the student expectation’s verb, not just "understand".','Students, not only the teacher, explain and justify.','The lesson closes with evidence tied to the criteria.'],
+  try:[['std','Open a sample standard']]},
+ {id:'discourse',title:'Discourse',sub:'Teacher-led or student-focused?',who:'Coaches · appraisers · teachers',
+  why:'The released items and their wrong answers give you ready-made discussion prompts, and a focus for what to listen for.',
+  steps:[`Before the lesson, open a released item. Turn its most-chosen wrong answer into a prompt: "Why might someone choose B? Convince them otherwise."`,
+   `On a walk, listen for who is talking and to whom: teacher to students, or students to each other.`,
+   `Listen for the student expectation's vocabulary and for justification ("because…", "I know this works since…").`,
+   `Connect to the process standards in every grade (for example 6.1D–G and A.1D–G): communicate, analyze, and justify mathematical ideas.`],
+  look:['Teacher-led: the teacher asks, one student answers, the teacher evaluates.','Student-focused: students respond to each other, compare strategies, and critique reasoning.','Questions ask why and how, not only what.'],
+  try:[['std','Find a discussion prompt']]},
+ {id:'cra',title:'CRA and student work',sub:'Models and representations',who:'Teachers · coaches · interventionists',
+  why:'Concrete–Representational–Abstract: students move from objects, to drawings and models, to symbols. The tool already shows the models the TEKS name and the representations STAAR uses.',
+  steps:[`Open a TEKS and read the vertical alignment. Earlier grades' wording often names the model ("using concrete objects", "pictorial models", "number lines").`,
+   `Expand the released items. Note the representations students must read and produce: tape diagrams, number lines, tables, graphs, algebra tiles.`,
+   `Plan the path: which concrete tool, which representation, and when students move to the equation.`,
+   `On a walk, look at student work. Can you see the representation, and the connection to the symbols?`],
+  look:['Concrete: manipulatives such as two-color counters or algebra tiles, used with purpose.','Representational: drawings and models (tape diagrams, double number lines, area models) that students make, not only see.','Abstract: equations and expressions students connect back to the model.'],
+  soon:'<b>Planned next:</b> a short note for each lesson with the CRA model it uses, an example of strong student work, and discourse prompts. Tell me which course to start with.',
+  try:[['std','Open a sample standard']]}
+];
+function helpTry(a){
+  const d=$('help'); if(d.open) d.close();
+  const code=SAMPLE[COURSE.key];
+  if(a==='std'){ if(STD.has(code)) selectStd(code); else showView('std'); window.scrollTo(0,0); }
+  else if(a==='cal'){ const tw=weekOfDate(todayISO()); if(tw) calGoto(tw.q,tw.wk); else showView('cal'); }
+  else if(a==='perf'){ showView('perf'); const c=$('pLow'); if(c&&!c.checked){ c.checked=true; buildPerfTable(); } window.scrollTo(0,0); }
+  else { showView(a); window.scrollTo(0,0); }
+}
+function helpShow(id){
+  const h=HELP.find(x=>x.id===id)||HELP[0];
+  $('hnav').querySelectorAll('button').forEach(b=>b.setAttribute('aria-current',b.dataset.h===h.id));
+  let html=`<button class="hclose" id="hclose">Close ✕</button><h3>${h.title}</h3><p class="who">${h.who} · examples open in <b>${COURSE.name}</b></p><p class="why">${h.why}</p><h4>${h.id==='tour'?'The tabs':'Steps'}</h4><ol>${h.steps.map(s=>`<li>${s}</li>`).join('')}</ol>`;
+  if(h.look) html+=`<h4>Look for</h4><ul>${h.look.map(s=>`<li>${s}</li>`).join('')}</ul>`;
+  if(h.soon) html+=`<div class="soon">${h.soon}</div>`;
+  html+=`<div class="trybar">${h.try.map(([a,l],i)=>`<button class="${i?'alt':''}" data-try="${a}">${l} →</button>`).join('')}</div>`;
+  const b=$('hbody'); b.innerHTML=html; b.scrollTop=0;
+  b.querySelectorAll('[data-try]').forEach(x=>x.addEventListener('click',()=>helpTry(x.dataset.try)));
+  $('hclose').addEventListener('click',()=>$('help').close());
+}
+(function(){
+  const nav=$('hnav');
+  for(const h of HELP){ const b=document.createElement('button'); b.dataset.h=h.id; b.innerHTML=`${h.title}<small>${h.sub}</small>`; b.addEventListener('click',()=>helpShow(h.id)); nav.appendChild(b); }
+  $('helpOpen').addEventListener('click',()=>{ helpShow('tour'); $('help').showModal(); });
+  $('help').addEventListener('click',e=>{ if(e.target===$('help')) $('help').close(); });
+})();
 /* ---------- course switch ---------- */
 const FOOT={
  a1ms:`Source: Carnegie Learning, <em>Texas Math Solution · Algebra 1 · TEKS Overview</em> (dot chart as supplied in Word form): ● fully covered, ○ partially covered; green column = readiness, white = supporting. The chart marks “BAC Is Bad News” as Omitted; its four End of Course Performance Tasks are listed as Module 5. TEKS statements are verbatim from 19 TAC §111.39 (Algebra I), TEA posting. EOC item data: lead4ward IQ Tool, 2025 and 2026 released Algebra I tests (State column = percent of Texas students); one item (2025 Q10, A.3D) prints over the next item in the IQ Tool export, so its picture is left out. Vertical alignment: lead4ward TEKS Scaffold, Math Algebra I (teks_scaffold_math_gr_alg1). Pacing: Dallas ISD 2026-27 Instructional Planning Calendars, Algebra 1 (MS), Q1–Q4; “after STAAR” means a lesson starts after the first Algebra I EOC administration day on the IPC. “Today” follows the device clock.`,
@@ -2586,6 +2713,7 @@ if(!ck){ try{ ck=localStorage.getItem('teks678-course'); }catch(e){} }
 if(!COURSES[ck]) ck=(hc.startsWith('8.')?'g8':hc.startsWith('A.')?'a1ms':'g6');
 loadCourse(ck,false);
 if(STD.has(hc)) selectStd(hc,false);
+if(/^help$/i.test(h)){ helpShow('tour'); $('help').showModal(); }
 </script>
 </body>
 </html>
