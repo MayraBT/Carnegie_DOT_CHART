@@ -329,6 +329,10 @@
     body.mvprint #mvDetail h4.mvh{margin:12px 0 6px}
     @page{margin:0.5in}
   }
+  .lrow.hit,.lrow.hit:hover{background:#fff4c2;box-shadow:inset 4px 0 0 #e0a800}
+  .mk.hitmk{outline:2px solid #e0a800;outline-offset:1px}
+  .lesmark{margin:0 0 12px;padding:9px 14px;background:#fff4c2;border:1px solid #e9cf6a;border-radius:8px;font-size:14.5px;display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+  .lesmark .chip{background:#fff}
 </style>
 </head>
 <body>
@@ -372,6 +376,7 @@
   </section>
 
   <section class="view" id="view-les">
+    <div class="lesmark" id="lesmark" hidden></div>
     <div class="modlist" id="modlist"></div>
   </section>
 
@@ -2426,6 +2431,7 @@ function showView(v){
   document.querySelectorAll('.view').forEach(s=>s.classList.toggle('on',s.id==='view-'+v));
   if(v==='grid') highlightGrid(true);
   if(v==='cal') buildCal();
+  if(v==='les') markLessons(true);
   if(v==='moves'){ if(sel && MOVES_IDX.has(sel) && sel!==mvSel){ mvSel=sel; mvAnchor=sel; } buildMoves(); }
 }
 
@@ -2510,7 +2516,7 @@ function selectStd(code, push=true){
   sel=code;
   document.querySelectorAll('#strands .chip').forEach(b=>b.classList.toggle('sel',b.dataset.code===code));
   if(code.startsWith('7.') && !$('f7').checked){ $('f7').checked=true; applyStdFilters(); }
-  renderDetail(code); highlightGrid(); if($('view-cal').classList.contains('on')) buildCal();
+  renderDetail(code); highlightGrid(); markLessons(); if($('view-cal').classList.contains('on')) buildCal();
   if(window.innerWidth<820 && push) $('detail').scrollIntoView({block:'start'});
   if(push){ try{ history.replaceState(null,'','#'+COURSE.key+'/'+code); }catch(e){ /* sandboxed embeds (Google Sites, artifact viewer) block URL updates; lookup still works */ } }
   showView('std');
@@ -2658,7 +2664,7 @@ function renderItem(d){
     stat=`<div class="bar"><i class="p" style="width:${f+p}%"></i><i style="width:${f}%"></i></div><span class="${pctClass(f)}">${f}%</span><span class="credit">full credit${p?` · ${p}% partial`:''} · ${c.no??''}% no credit</span>`;
   }
   return `<div class="item"><div class="head"><b>Q${d.q}</b><span class="meta">${esc(d.itemType)} · ${d.points} pt${d.points>1?'s':''}</span>${stat}</div>
-    ${d.img?`<details><summary>Show item${d.correct?` · correct answer: ${esc(d.correct)}`:''}</summary><img loading="lazy" alt="STAAR ${d.year} question ${d.q}" src="${d.img}"></details>`:(d.correct?`<div class="meta" style="margin-top:6px">Correct answer: ${esc(d.correct)}</div>`:'')}</div>`;
+    ${d.img?`<details><summary>Show item${d.correct?` · correct answer: ${esc(d.correct)}`:''}</summary><img loading="lazy" alt="STAAR ${d.year} question ${d.q}" src="${d.img}" onerror="this.outerHTML='<p class=&quot;notested&quot;>Item image not found — <code>${d.img}</code> needs to be uploaded to the items folder on GitHub.</p>'"></details>`:(d.correct?`<div class="meta" style="margin-top:6px">Correct answer: ${esc(d.correct)}</div>`:'')}</div>`;
 }
 function renderPerf(code){
   const P=PERF[code];
@@ -2730,6 +2736,31 @@ function applyLessonFilter(){
     const any=[...d.querySelectorAll('.lrow')].some(r=>!r.classList.contains('hide'));
     d.style.display=any?'':'none'; if(q) d.open=true;
   });
+}
+let lesMarked=null;
+function markLessons(showing){
+  const host=$('modlist'); if(!host) return;
+  const code=(sel&&STD.has(sel))?sel:null;
+  let first=null, n=0;
+  host.querySelectorAll('.lrow').forEach(r=>{
+    const L=LES_BY_ID.get(r.dataset.id);
+    const hit=!!code && L.marks.some(m=>m[0]===code);
+    r.classList.toggle('hit',hit); if(hit){ n++; if(!first) first=r; }
+    r.querySelectorAll('.mk[data-code]').forEach(b=>b.classList.toggle('hitmk',b.dataset.code===code));
+  });
+  const bar=$('lesmark');
+  bar.hidden=!code;
+  if(code) bar.innerHTML=`<b>${code}</b> · ${n?`${n} lesson${n>1?'s':''} highlighted — modules without ${code} are collapsed.`:`no lesson in ${esc(COURSE.name)} carries ${code}.`} <button class="chip" id="lesExpand">Expand all</button> <button class="chip" id="lesClear">Clear</button>`;
+  if(code){
+    $('lesExpand').onclick=()=>host.querySelectorAll('details').forEach(d=>d.open=true);
+    $('lesClear').onclick=()=>{ sel=null; document.querySelectorAll('#strands .chip').forEach(b=>b.classList.remove('sel')); renderDetail(null); highlightGrid(); lesMarked=null; markLessons(); };
+  }
+  const key=COURSE.key+'/'+code;
+  if(key!==lesMarked && !query.trim()){
+    lesMarked=key;
+    host.querySelectorAll('details').forEach(d=>{ d.open = code ? !!d.querySelector('.lrow.hit') : false; });
+  }
+  if(showing && first && $('view-les').classList.contains('on')) first.scrollIntoView({block:'center'});
 }
 function openLesson(id){
   showView('les');
@@ -2997,7 +3028,7 @@ function loadCourse(k,keepSel=true){
   $('legend').innerHTML=legendHTML(); $('foot').innerHTML=FOOT[k];
   $('f7wrap').style.display=(k==='g6'||k==='a7')?'':'none'; $('f7').checked=k==='a7';
   $('pG').innerHTML=TESTS[k].map(([v,l])=>`<option value="${v}">${l}</option>`).join(''); $('pGwrap').style.display=TESTS[k].length>1?'':'none';
-  buildStrands(); buildModList(); buildGridCtl(); buildGrid(); buildPerfTable(); buildCal(); applyStdFilters(); applyLessonFilter();
+  buildStrands(); buildModList(); lesMarked=null; buildGridCtl(); buildGrid(); buildPerfTable(); buildCal(); applyStdFilters(); applyLessonFilter();
   refreshLensBarOnly();
   if(lens){ const p=lensPick(); if(p) selectStd(p,true); else { sel=null; renderDetail(null); } }
   else if(keepSel && sel && STD.has(sel)) selectStd(sel,true);
