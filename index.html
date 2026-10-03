@@ -2290,10 +2290,26 @@ function applyStdFilters(){
     d.style.display=[...d.querySelectorAll('.chip')].some(c=>!c.classList.contains('hide'))?'':'none';
   });
 }
+/* search: every typed word must match a whole word (plurals/endings trimmed: ratios = ratio, inequalities = inequality);
+   if nothing matches that strictly, words are matched as beginnings (propor → proportional) */
+function stem(w){ w=w.toLowerCase(); if(/\d/.test(w)) return w; if(w.length>3) w=w.replace(/ies$/,'i').replace(/y$/,'i'); w=w.replace(/(sses|xes|ches|shes)$/,m=>m.slice(0,-2)); return w.length>3?w.replace(/([^s])s$/,'$1'):w; }
+const isCodeQ=q=>/^\s*(2a|a|\d{1,2})\.\d{0,2}[a-z]?\s*$/i.test(q);
+function qWords(q){ if(isCodeQ(q)) return ['\u0000']; return q.replace(/[“”"'’]/g,'').split(/[^A-Za-z0-9]+/).filter(Boolean).map(stem); }
+const _wc=new Map();
+function tWords(t){ let v=_wc.get(t); if(!v){ v=t.split(/[^A-Za-z0-9]+/).filter(Boolean).map(stem); _wc.set(t,v); } return v; }
+let QMODE='strict';
+function hasAll(text,words){ const tw=tWords(text); return words.every(q=>QMODE==='strict'?tw.includes(q):tw.some(x=>x.startsWith(q))); }
+function setQMode(q){
+  QMODE='strict'; const w=qWords(q); if(!w.length) return;
+  const any=DATA.standards.some(s=>hasAll(s.code+' '+s.desc,w))||DATA.lessons.some(L=>hasAll(L.title+' '+L.sub+' '+MOD.get(L.m).topics[L.t-1],w));
+  if(!any) QMODE='prefix';
+}
+function codeHit(code,q){ const c=code.toLowerCase(), k=q.trim().toLowerCase(); return /\d/.test(k)&&!/\s/.test(k)&&c.startsWith(k); }
 function matchStd(s,q){
-  if(s.code.toLowerCase().startsWith(q)) return true;
-  if(s.desc.toLowerCase().includes(q)) return true;
-  return BY_STD.get(s.code).some(({L})=>(L.title+' '+L.sub).toLowerCase().includes(q));
+  if(codeHit(s.code,q)) return true;
+  const w=qWords(q); if(!w.length) return true;
+  if(hasAll(s.code+' '+s.desc,w)) return true;
+  return BY_STD.get(s.code).some(({L})=>hasAll(L.title+' '+L.sub,w));
 }
 function selectStd(code, push=true){
   sel=code;
@@ -2445,8 +2461,8 @@ function applyLessonFilter(){
   const q=query.trim().toLowerCase();
   document.querySelectorAll('#modlist .lrow').forEach(r=>{
     const L=DATA.lessons.find(x=>x.id===r.dataset.id);
-    const txt=(L.title+' '+L.sub+' '+L.marks.map(m=>m[0]).join(' ')+' '+MOD.get(L.m).topics[L.t-1]).toLowerCase();
-    r.classList.toggle('hide', !!q && !txt.includes(q));
+    const txt=(L.title+' '+L.sub+' '+L.marks.map(m=>m[0]).join(' ')+' '+MOD.get(L.m).topics[L.t-1]);
+    r.classList.toggle('hide', !!q && !(L.marks.some(m=>codeHit(m[0],q)) || hasAll(txt,qWords(q))));
   });
   document.querySelectorAll('#modlist .topic').forEach(t=>t.classList.toggle('hide',![...t.querySelectorAll('.lrow')].some(r=>!r.classList.contains('hide'))));
   document.querySelectorAll('#modlist details').forEach(d=>{
@@ -2546,16 +2562,23 @@ document.addEventListener('click',e=>{ const w=e.target.closest('.when.link'); i
 /* ---------- search ---------- */
 $('q').addEventListener('input',e=>{
   query=e.target.value;
-  applyStdFilters(); applyLessonFilter();
+  const on=document.querySelector('.view.on').id;
+  if(query.trim() && on!=='view-std' && on!=='view-les') showView('std');
+  setQMode(query); applyStdFilters(); applyLessonFilter();
   const q=query.trim().toUpperCase();
   if(STD.has(q)) selectStd(q);
   else { sel=null; document.querySelectorAll('#strands .chip').forEach(b=>b.classList.remove('sel')); q?renderSearch(query):renderDetail(null); highlightGrid(); }
 });
 function renderSearch(raw){
   const q=raw.trim().toLowerCase(); const host=$('detail');
-  const stds=DATA.standards.filter(s=>s.code.toLowerCase().startsWith(q)||s.desc.toLowerCase().includes(q));
-  const les=DATA.lessons.filter(L=>(L.title+' '+L.sub+' '+MOD.get(L.m).topics[L.t-1]).toLowerCase().includes(q));
-  if(!stds.length && !les.length){ host.innerHTML=`<p class="empty">Nothing matches “${esc(raw)}”. Try a TEKS code (8.5I) or a shorter word.</p>`; return; }
+  const w=qWords(q);
+  const stds=DATA.standards.filter(s=>codeHit(s.code,q)||hasAll(s.code+' '+s.desc,w));
+  const les=DATA.lessons.filter(L=>hasAll(L.title+' '+L.sub+' '+MOD.get(L.m).topics[L.t-1],w));
+  if(!stds.length && !les.length){
+    const others=Object.values(COURSES).filter(C=>C.key!==COURSE.key&&(C.data.standards.some(x=>codeHit(x.code,q)||(!isCodeQ(q)&&hasAll(x.code+' '+(TEKS[x.code]||x.desc),w)))||(!isCodeQ(q)&&C.data.lessons.some(L=>hasAll(L.title+' '+L.sub,w)))));
+    host.innerHTML=`<p class="empty">Nothing in ${COURSE.name} matches “${esc(raw)}”.${others.length?` Found in: ${others.map(C=>`<button class="chip" data-go="${C.key}">${esc(C.name)}</button>`).join(' ')}`:` Try a TEKS code (${SAMPLE[COURSE.key]||'8.5I'}) or a shorter word.`}</p>`;
+    host.querySelectorAll('[data-go]').forEach(b=>b.addEventListener('click',()=>{ const v=query; loadCourse(b.dataset.go,false); $('q').value=v; $('q').dispatchEvent(new Event('input')); }));
+    return; }
   let html=`<p class="count">Results for “${esc(raw)}” · ${stds.length} standard${stds.length===1?'':'s'} · ${les.length} lesson${les.length===1?'':'s'}</p>`;
   if(stds.length){
     html+='<div class="mod"><h4>Standards</h4><div class="chips">'+stds.map(s=>`<button class="chip ${s.type}${BY_STD.get(s.code).length?'':' none'}" data-code="${s.code}" title="${esc(s.desc)}">${s.code}</button>`).join('')+'</div></div>';
@@ -2691,7 +2714,7 @@ function legendHTML(){
 const SUB={g6:'Texas Math Solution (Carnegie Learning) · standards ↔ lessons · Grade 6 STAAR',a7:'Carnegie Grade 8 lessons with Grade 7 lessons placed in · standards ↔ lessons · Grade 8 STAAR',g8:'Texas Math Solution (Carnegie Learning) · standards ↔ lessons · Grade 8 STAAR',a1ms:'Texas Math Solution (Carnegie Learning) · middle school Algebra I IPC · Algebra I EOC',a1hs:'Texas Math Solution (Carnegie Learning) · high school Algebra I IPC (A/B block) · Algebra I EOC'};
 const TESTS={g6:[['6','Grade 6 STAAR'],['7','Grade 7 STAAR (reference)']],a7:[['8','Grade 8 STAAR'],['7','Grade 7 STAAR (reference)']],g8:[['8','Grade 8 STAAR']],a1ms:[['A','Algebra I EOC']],a1hs:[['A','Algebra I EOC']]};
 function loadCourse(k,keepSel=true){
-  setCourse(k);
+  setCourse(k); setQMode(query);
   try{ localStorage.setItem('teks678-course',k); }catch(e){}
   document.querySelectorAll('.course button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.c===k));
   $('ttl').firstChild.nodeValue=COURSE.title;
@@ -2714,6 +2737,9 @@ if(!COURSES[ck]) ck=(hc.startsWith('8.')?'g8':hc.startsWith('A.')?'a1ms':'g6');
 loadCourse(ck,false);
 if(STD.has(hc)) selectStd(hc,false);
 if(/^help$/i.test(h)){ helpShow('tour'); $('help').showModal(); }
+window.addEventListener('hashchange',()=>{ let hh=''; try{ hh=decodeURIComponent(location.hash.slice(1)); }catch(e){} if(/^help$/i.test(hh)){ helpShow('tour'); $('help').showModal(); return; }
+  const m=hh.match(/^(g6|a7|g8|a1ms|a1hs)(?:\/(.*))?$/i); if(!m) return; const k=m[1].toLowerCase(), c=(m[2]||'').toUpperCase();
+  if(k!==COURSE.key) loadCourse(k,false); if(STD.has(c)&&c!==sel) selectStd(c,false); });
 </script>
 </body>
 </html>
