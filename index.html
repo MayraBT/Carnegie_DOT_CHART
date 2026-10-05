@@ -340,6 +340,13 @@
   ol.stems{margin:0;padding-left:22px;font-size:15px}
   ol.stems li{padding:5px 0;border-bottom:1px dashed var(--line)}
   .mvnote{font-size:13px;color:var(--ink-2);margin-top:22px;padding:8px 12px;border-left:3px solid var(--line);max-width:80ch}
+  .glance{margin:10px 0 4px;border:1.5px solid #e9cf6a;background:#fffbea;border-radius:10px;padding:10px 14px}
+  .glance h4{margin:0 0 6px;font-size:14px;color:#5a4300;text-transform:uppercase;letter-spacing:.04em}
+  .glance .gl{display:grid;grid-template-columns:190px 1fr;gap:4px 14px;padding:5px 0;font-size:14.5px;border-top:1px dashed #ecdca0}
+  .glance .gl:first-of-type{border-top:0}
+  .glance .gl b{font-size:13.5px;color:#5a4300}
+  @media (max-width:820px){.glance .gl{grid-template-columns:1fr}}
+  body.mvprint .glance .gl{font-size:11.5px}
   .mvdisc{margin:-4px 0 6px;font-size:13px;color:var(--ink-2);font-style:italic}
   @media print{
     body.mvprint header,body.mvprint .tabs,body.mvprint .legend,body.mvprint .lensbar,body.mvprint footer,body.mvprint #view-moves .pane,body.mvprint .mvact{display:none!important}
@@ -379,7 +386,7 @@
   <button role="tab" aria-selected="false" data-view="les" title="By lesson — Lessons and their TEKS"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6h11M9 12h11M9 18h11"/><circle cx="4.5" cy="6" r="1"/><circle cx="4.5" cy="12" r="1"/><circle cx="4.5" cy="18" r="1"/></svg><span class="tl"><span class="tn">By lesson</span><span class="th">Lessons and their TEKS</span></span></button>
   <button role="tab" aria-selected="false" data-view="std" title="By standard — One TEKS in depth"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="4"/><circle cx="12" cy="12" r=".6"/></svg><span class="tl"><span class="tn">By standard</span><span class="th">One TEKS in depth</span></span></button>
   <button role="tab" aria-selected="false" data-view="perf" title="STAAR performance — Released items"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M21 20H3"/></svg><span class="tl"><span class="tn">STAAR performance</span><span class="th">Released items</span></span></button>
-  <button role="tab" aria-selected="false" data-view="moves" title="Teaching moves — CRA · questions · stems"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v10H9l-5 4z"/><path d="M8 9h8M8 12h5"/></svg><span class="tl"><span class="tn">Teaching moves</span><span class="th">CRA · questions · stems</span></span></button>
+  <button role="tab" aria-selected="false" data-view="moves" title="Teaching moves — Look-fors: see and hear"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v10H9l-5 4z"/><path d="M8 9h8M8 12h5"/></svg><span class="tl"><span class="tn">Teaching moves</span><span class="th">Look-fors: see and hear</span></span></button>
   <button role="tab" aria-selected="false" data-view="grid" title="Full grid — The dot chart"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="3.5" width="17" height="17" rx="2"/><path d="M3.5 9.5h17M3.5 14.5h17M9.5 3.5v17M14.5 3.5v17"/></svg><span class="tl"><span class="tn">Full grid</span><span class="th">The dot chart</span></span></button>
   <button class="railtog keytog" id="keyTog" aria-pressed="false" title="Hide the key at the top of each view"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="8" cy="12" r="4"/><path d="M12 12h9M18 12v3M21 12v2"/></svg><span class="tl"><span class="tn">Hide key</span></span></button>
   <button class="railtog" id="railTog" aria-pressed="false" title="Hide the menu labels to give the page more room"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg><span class="tl"><span class="tn">Hide labels</span></span></button>
@@ -493,7 +500,7 @@ function mvFilter(){
   const R=$('mvR').checked, w=mvQuery.trim().toLowerCase().split(/\s+/).filter(Boolean);
   const isCode=/^[678a]\.\d/i.test(mvQuery.trim());
   const fam=(mvAnchor && $('mvAl').checked && !w.length) ? familyOf(mvAnchor) : null;
-  $('mvAlWrap').hidden=!mvAnchor; $('mvAlCode').textContent=mvAnchor||'';
+  $('mvAlWrap').style.display=mvAnchor?'':'none'; $('mvAlCode').textContent=mvAnchor||'';
   $('mvG').style.opacity=fam?'.45':''; $('mvG').title=fam?'Grade filter is off while showing vertically aligned standards':'';
   let n=0;
   document.querySelectorAll('#mvStrands .chip').forEach(b=>{
@@ -525,13 +532,19 @@ function openMoves(code){ showView('moves'); mvSelect(code); window.scrollTo(0,0
 const li=a=>'<ul>'+a.map(x=>`<li>${esc(x)}</li>`).join('')+'</ul>';
 function mvRender(code){
   const host=$('mvDetail'), m=code&&MOVES_IDX.get(code);
-  if(!m){ host.innerHTML='<p class="empty">Pick a standard on the left, or search above by TEKS code or a word (slope, percent, integers). Each standard shows common misconceptions, concrete–representational–abstract models, tiered probing questions, and student sentence stems.</p><p class="mvnote">Teaching moves are suggestions to support planning and coaching conversations. They are not a complete list, and they are not meant for evaluating teacher instruction or performance.</p>'; return; }
+  if(!m){ host.innerHTML='<p class="empty">Pick a standard on the left, or search above by TEKS code or a word (slope, percent, integers). Each standard starts with look-fors (what you might see and hear), then common misconceptions, concrete–representational–abstract models, tiered probing questions, and student sentence stems.</p><p class="mvnote">Teaching moves are look-fors: what you might see and hear in a classroom where students are learning this standard. They help any visitor, with or without a math background, understand what they are watching and hearing. They are suggestions, not a complete list, and not a checklist for evaluating teacher instruction or performance.</p>'; return; }
   const inCourse=STD.has(code);
   const T={t1:['Tier 1','Core, whole class'],t2:['Tier 2','Small group, reteach with a model'],t3:['Tier 3','Intensive, smaller steps']};
   let h=`<p class="code">${m.code}<span class="tag ${m.t}">${TYPE_NAME[m.t]}</span><span class="tag">${MV_GNAME[code.split('.')[0]]}</span></p>
   <p class="desc">${esc(m.d)}</p>
-  <p class="mvdisc">Suggestions only · not a complete list · not for evaluating teacher instruction or performance</p>
+  <p class="mvdisc">Look-fors to understand the lesson · suggestions, not a complete list · not for evaluating teacher instruction or performance</p>
   <div class="mvact">${inCourse?`<button data-std="${code}">Open in By standard (lessons, STAAR items) →</button>`:''}<button data-print>Print this standard</button><button data-copy>Copy sentence stems</button></div>
+  <div class="glance"><h4>Look-fors at a glance</h4>
+    <div class="gl"><b>You might see</b><span>${esc(m.cra.look)}</span></div>
+    <div class="gl"><b>You might hear students say</b><span>${m.stems.slice(0,3).map(x=>'“'+esc(x)+'”').join(' ')}</span></div>
+    <div class="gl"><b>You might hear the teacher ask</b><span>${m.q.t1.assess.concat(m.q.t1.advance.slice(0,1)).map(x=>'“'+esc(x)+'”').join(' ')}</span></div>
+    <div class="gl"><b>Students may be stuck if</b><span>${esc(m.mis[0].m)}</span></div>
+  </div>
   <h4 class="mvh"><span class="n">1</span>Common misconceptions</h4>
   <div class="mis">${m.mis.map(x=>`<div class="card"><p><b>${esc(x.m)}</b></p><p><span class="lab">Why</span>${esc(x.why)}</p><p class="fix"><span class="lab">Try</span>${esc(x.fix)}</p></div>`).join('')}</div>
   <h4 class="mvh"><span class="n">2</span>Concrete → Representational → Abstract</h4>
@@ -547,7 +560,7 @@ function mvRender(code){
   h+=`</tbody></table>
   <h4 class="mvh"><span class="n">4</span>Student sentence stems</h4>
   <ol class="stems">${m.stems.map(x=>`<li>${esc(x)}</li>`).join('')}</ol>
-  <p class="mvnote">Teaching moves are suggestions to support planning and coaching conversations. They are not a complete list, and they are not meant for evaluating teacher instruction or performance. General best practice, not tied to a specific curriculum. Review and adapt for your students.</p>`;
+  <p class="mvnote">Teaching moves are look-fors: what you might see and hear in a classroom where students are learning this standard. They help any visitor, with or without a math background, understand what they are watching and hearing. They are suggestions, not a complete list, and not a checklist for evaluating teacher instruction or performance. General best practice, not tied to a specific curriculum. Review and adapt for your students.</p>`;
   host.innerHTML=h;
   const sb=host.querySelector('[data-std]'); if(sb) sb.addEventListener('click',()=>{ selectStd(code); window.scrollTo(0,0); });
   host.querySelector('[data-print]').addEventListener('click',()=>{ document.body.classList.add('mvprint'); window.print(); setTimeout(()=>document.body.classList.remove('mvprint'),500); });
@@ -2952,6 +2965,7 @@ const HELP=[
   steps:[`Open ${T('Calendar')} and click <b>Go to this week</b>. Find today's lesson for the course you are visiting.`,
    `Click the lesson's TEKS chips. Read the student expectation: what is the verb (represent, solve, compare, justify)?`,
    `Expand one released item under ${T('By standard')} to see how the standard is tested.`,
+   `Open the TEKS in ${T('Teaching moves')} and read <b>Look-fors at a glance</b>: what you might see and hear while students learn it.`,
    `In the room, compare what you see to the IPC: same lesson? If not, count the class days behind or ahead on the calendar.`],
   look:['The posted objective matches the student expectation, not only the lesson title.','The new vocabulary for today\u2019s TEKS is visible (word wall, anchor chart) and students use it when they talk and write.','The task asks students to do what the verb says, at the level of the released item.','Student work uses the same kinds of representations the STAAR items use: tables, graphs, number lines, equations.','A student can say what they are learning and why it matters.'],
   try:[['cal','Go to this week'],['std','See a TEKS with its items']]},
@@ -2961,7 +2975,7 @@ const HELP=[
    `Open the readiness standard in ${T('By standard')}. Read the vertical alignment so you know the prior-grade skills students bring.`,
    `During: compare the objective, the task, and the exit ticket with the student expectation's verb and content.`,
    `After: in the feedback conversation, show a released item and its most-chosen wrong answer. Ask: "Would your students get this one? What would trip them up?"`],
-  soon:'<b>Please note:</b> Teaching moves are suggestions to support planning and coaching conversations. They are not a complete list, and they are not meant for evaluating teacher instruction or performance.',
+  soon:'<b>Please note:</b> Teaching moves are look-fors: what you might see and hear in a classroom where students are learning this standard. They help any visitor, with or without a math background, understand what they are watching and hearing. They are suggestions, not a complete list, and not a checklist for evaluating teacher instruction or performance.',
   look:['Planning evidence: the lesson is aligned to the TEKS the IPC lists for that day.','Content evidence: questions and tasks reach the depth of the released items, not only recall.','Monitoring evidence: the teacher checks for the misconception behind the most-chosen wrong answer.'],
   try:[['std','Open a sample standard'],['perf','See items under 50%']]},
  {id:'planning',title:'Planning',sub:'Partially covered standards',who:'PLCs · teachers · coaches',
@@ -3008,16 +3022,17 @@ const HELP=[
    `Connect to the process standards in every grade (for example 6.1D–G and A.1D–G): communicate, analyze, and justify mathematical ideas.`],
   look:['Teacher-led: the teacher asks, one student answers, the teacher evaluates.','Student-focused: students respond to each other, compare strategies, and critique reasoning.','Questions ask why and how, not only what.'],
   try:[['std','Find a discussion prompt']]},
- {id:'moves',title:'Teaching moves',sub:'Suggestions for planning and coaching',who:'Teachers · PLCs · coaches · interventionists',
-  why:'Ideas to plan from: the misconceptions students often bring, what concrete–representational–abstract can look like, questions to ask at each tier, and sentence stems for students.',
+ {id:'moves',title:'Teaching moves',sub:'Look-fors: what to see and hear',who:'Campus visitors · leaders · coaches · teachers · PLCs',
+  why:'When a standard is posted on the wall, what should you expect to see and hear? Teaching moves describe it in plain terms, so any visitor, with or without a math background, can understand what students are working on. Teachers and PLCs can plan from the same ideas.',
   steps:[`Pick a TEKS anywhere in the tool, then open ${T('Teaching moves')}. It opens on that standard, and the list on the left shows only the standards vertically aligned to it.`,
-   `<b>Common misconceptions</b>: what students think, why, and one move to try. Plan a question or task that would surface each one.`,
+   `<b>Look-fors at a glance</b> (yellow box): what you might see, what students and the teacher might say, and a sign that students are stuck. Start here on a walk.`,
+   `<b>Common misconceptions</b>: what students think, why, and one move to try. Listen for these in student talk and look for them in student work.`,
    `<b>Concrete → Representational → Abstract</b>: possible tools and models for each stage, and what connected student work can look like.`,
    `<b>Probing questions</b>: assessing questions find out what a student is thinking; advancing questions move the student forward. Tier 2 and Tier 3 rows offer smaller steps and more support.`,
    `<b>Sentence stems</b>: copy them onto an anchor chart or the student page with the <b>Copy sentence stems</b> button.`,
    `Use <b>Print this standard</b> to bring a reference sheet to a PLC.`],
-  look:['Choose what fits your students and your curriculum. Leave the rest.','Adapt questions and stems to your students\u2019 language needs.'],
-  soon:'<b>Please note:</b> Teaching moves are suggestions to support planning and coaching conversations. They are not a complete list, and they are not meant for evaluating teacher instruction or performance. They are general best practice, not tied to any curriculum, and should be adapted by the teacher.',
+  look:['Students use models, drawings, or tools, and connect them to the numbers and symbols.','Students talk about their reasoning, not only answers, using the standard\u2019s vocabulary.','The teacher asks questions that find out what students think and move them forward.','These are examples: a strong lesson may look different. Choose what fits; leave the rest.'],
+  soon:'<b>Please note:</b> Teaching moves are look-fors: what you might see and hear in a classroom where students are learning this standard. They help any visitor, with or without a math background, understand what they are watching and hearing. They are suggestions, not a complete list, and not a checklist for evaluating teacher instruction or performance. They are general best practice, not tied to any curriculum, and should be adapted by the teacher.',
   try:[['moves','Open Teaching moves']]},
  {id:'cra',title:'CRA and student work',sub:'Models and representations',who:'Teachers · coaches · interventionists',
   why:'Concrete–Representational–Abstract: students move from objects, to drawings and models, to symbols. The tool already shows the models the TEKS name and the representations STAAR uses.',
