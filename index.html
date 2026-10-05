@@ -41,12 +41,16 @@
   .tabs button[aria-selected="true"]{background:var(--teal-tint);color:var(--teal-deep);border-left-color:var(--teal)}
   .tabs button[aria-selected="true"] .tn{font-weight:700}
   .tabs button[aria-selected="true"] .th{color:var(--teal-deep)}
+  .tabs .keytog+.railtog{margin-top:0;border-top:0;padding-top:9px}
   .tabs .railtog{margin-top:14px;border-top:1px solid var(--line);border-radius:0;padding-top:12px;color:var(--ink-3)}
   .tabs .railtog .tn{font-size:13px}
   .shell.slim .tabs{padding-left:8px;padding-right:8px}
   .shell.slim .tabs .tl{display:none}
   .shell.slim .tabs button{justify-content:center;padding:10px 0}
-  .shell.slim .railtog svg{transform:rotate(180deg)}
+  .shell.slim #railTog svg{transform:rotate(180deg)}
+  .legend.off{display:none}
+  .legend .keyx{margin-left:auto;font-size:13px;color:var(--ink-3);padding:2px 8px;border-radius:6px}
+  .legend .keyx:hover{background:#fff;color:var(--ink)}
   @media (max-width:820px){
     .shell,.shell.slim{grid-template-columns:1fr}
     .tabs{position:static;flex-direction:row;min-height:0;overflow-x:auto;border-right:0;border-bottom:1px solid var(--line);padding:8px 16px;scrollbar-width:thin}
@@ -335,7 +339,8 @@
   @media (max-width:820px){table.pq,table.pq tbody,table.pq tr,table.pq td,table.pq th{display:block;width:auto}table.pq thead{display:none}table.pq td::before{content:attr(data-h);display:block;font-weight:700;font-size:12.5px;color:var(--ink-2)}}
   ol.stems{margin:0;padding-left:22px;font-size:15px}
   ol.stems li{padding:5px 0;border-bottom:1px dashed var(--line)}
-  .mvnote{font-size:12.5px;color:var(--ink-3);margin-top:22px}
+  .mvnote{font-size:13px;color:var(--ink-2);margin-top:22px;padding:8px 12px;border-left:3px solid var(--line);max-width:80ch}
+  .mvdisc{margin:-4px 0 6px;font-size:13px;color:var(--ink-2);font-style:italic}
   @media print{
     body.mvprint header,body.mvprint .tabs,body.mvprint .legend,body.mvprint .lensbar,body.mvprint footer,body.mvprint #view-moves .pane,body.mvprint .mvact{display:none!important}
     body.mvprint .split{display:block}
@@ -376,6 +381,7 @@
   <button role="tab" aria-selected="false" data-view="perf" title="STAAR performance — Released items"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M21 20H3"/></svg><span class="tl"><span class="tn">STAAR performance</span><span class="th">Released items</span></span></button>
   <button role="tab" aria-selected="false" data-view="moves" title="Teaching moves — CRA · questions · stems"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v10H9l-5 4z"/><path d="M8 9h8M8 12h5"/></svg><span class="tl"><span class="tn">Teaching moves</span><span class="th">CRA · questions · stems</span></span></button>
   <button role="tab" aria-selected="false" data-view="grid" title="Full grid — The dot chart"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="3.5" width="17" height="17" rx="2"/><path d="M3.5 9.5h17M3.5 14.5h17M9.5 3.5v17M14.5 3.5v17"/></svg><span class="tl"><span class="tn">Full grid</span><span class="th">The dot chart</span></span></button>
+  <button class="railtog keytog" id="keyTog" aria-pressed="false" title="Hide the key at the top of each view"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="8" cy="12" r="4"/><path d="M12 12h9M18 12v3M21 12v2"/></svg><span class="tl"><span class="tn">Hide key</span></span></button>
   <button class="railtog" id="railTog" aria-pressed="false" title="Hide the menu labels to give the page more room"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg><span class="tl"><span class="tn">Hide labels</span></span></button>
 </nav>
 
@@ -519,11 +525,12 @@ function openMoves(code){ showView('moves'); mvSelect(code); window.scrollTo(0,0
 const li=a=>'<ul>'+a.map(x=>`<li>${esc(x)}</li>`).join('')+'</ul>';
 function mvRender(code){
   const host=$('mvDetail'), m=code&&MOVES_IDX.get(code);
-  if(!m){ host.innerHTML='<p class="empty">Pick a standard on the left, or search above by TEKS code or a word (slope, percent, integers). Each standard shows common misconceptions, concrete–representational–abstract models, tiered probing questions, and student sentence stems.</p>'; return; }
+  if(!m){ host.innerHTML='<p class="empty">Pick a standard on the left, or search above by TEKS code or a word (slope, percent, integers). Each standard shows common misconceptions, concrete–representational–abstract models, tiered probing questions, and student sentence stems.</p><p class="mvnote">Teaching moves are suggestions to support planning and coaching conversations. They are not a complete list, and they are not meant for evaluating teacher instruction or performance.</p>'; return; }
   const inCourse=STD.has(code);
   const T={t1:['Tier 1','Core, whole class'],t2:['Tier 2','Small group, reteach with a model'],t3:['Tier 3','Intensive, smaller steps']};
   let h=`<p class="code">${m.code}<span class="tag ${m.t}">${TYPE_NAME[m.t]}</span><span class="tag">${MV_GNAME[code.split('.')[0]]}</span></p>
   <p class="desc">${esc(m.d)}</p>
+  <p class="mvdisc">Suggestions only · not a complete list · not for evaluating teacher instruction or performance</p>
   <div class="mvact">${inCourse?`<button data-std="${code}">Open in By standard (lessons, STAAR items) →</button>`:''}<button data-print>Print this standard</button><button data-copy>Copy sentence stems</button></div>
   <h4 class="mvh"><span class="n">1</span>Common misconceptions</h4>
   <div class="mis">${m.mis.map(x=>`<div class="card"><p><b>${esc(x.m)}</b></p><p><span class="lab">Why</span>${esc(x.why)}</p><p class="fix"><span class="lab">Try</span>${esc(x.fix)}</p></div>`).join('')}</div>
@@ -540,7 +547,7 @@ function mvRender(code){
   h+=`</tbody></table>
   <h4 class="mvh"><span class="n">4</span>Student sentence stems</h4>
   <ol class="stems">${m.stems.map(x=>`<li>${esc(x)}</li>`).join('')}</ol>
-  <p class="mvnote">General best-practice guidance, not tied to a specific curriculum. Review and adapt for your students.</p>`;
+  <p class="mvnote">Teaching moves are suggestions to support planning and coaching conversations. They are not a complete list, and they are not meant for evaluating teacher instruction or performance. General best practice, not tied to a specific curriculum. Review and adapt for your students.</p>`;
   host.innerHTML=h;
   const sb=host.querySelector('[data-std]'); if(sb) sb.addEventListener('click',()=>{ selectStd(code); window.scrollTo(0,0); });
   host.querySelector('[data-print]').addEventListener('click',()=>{ document.body.classList.add('mvprint'); window.print(); setTimeout(()=>document.body.classList.remove('mvprint'),500); });
@@ -2453,6 +2460,9 @@ const $ = id => document.getElementById(id);
 document.querySelectorAll('.tabs button[data-view]').forEach(b=>b.addEventListener('click',()=>showView(b.dataset.view)));
 function setSlim(on){ $('shell').classList.toggle('slim',on); $('railTog').setAttribute('aria-pressed',on); $('railTog').querySelector('.tn').textContent=on?'Show labels':'Hide labels'; $('railTog').title=on?'Show the menu labels':'Hide the menu labels to give the page more room'; try{ localStorage.setItem('teks678-slim',on?'1':''); }catch(e){} }
 $('railTog').addEventListener('click',()=>setSlim(!$('shell').classList.contains('slim')));
+function setKey(show){ $('legend').classList.toggle('off',!show); const b=$('keyTog'); b.setAttribute('aria-pressed',!show); b.querySelector('.tn').textContent=show?'Hide key':'Show key'; b.title=show?'Hide the key at the top of each view':'Show the key'; try{ localStorage.setItem('teks678-nokey',show?'':'1'); }catch(e){} }
+$('keyTog').addEventListener('click',()=>setKey($('legend').classList.contains('off')));
+try{ if(localStorage.getItem('teks678-nokey')) setKey(false); }catch(e){}
 try{ if(localStorage.getItem('teks678-slim')) setSlim(true); }catch(e){}
 function showView(v){
   document.querySelectorAll('.tabs button[data-view]').forEach(b=>b.setAttribute('aria-selected',b.dataset.view===v));
@@ -2925,14 +2935,15 @@ document.addEventListener('keydown',e=>{ if(e.key==='/' && document.activeElemen
 const SAMPLE={g6:'6.4B',a7:'8.5I',g8:'8.5I',a1ms:'A.5A',a1hs:'A.5A'};
 const T=n=>`<span class="tab">${n}</span>`;
 const HELP=[
- {id:'tour',title:'Quick tour',sub:'What each tab does',who:'Everyone · start here',
+ {id:'tour',title:'Quick tour',sub:'What each view does',who:'Everyone · start here',
   why:'Pick a course at the top, then choose a view from the menu on the left. It opens on the Calendar. Every TEKS chip and lesson title is clickable, so you can jump between views.',
   steps:[`${T('Calendar')} The IPC day by day. Today is outlined in teal, and the days that teach the TEKS you picked are outlined in amber.`,
    `${T('By lesson')} Every lesson with its TEKS: ● fully covered, ○ partially covered. Each lesson shows when it is on the IPC.`,
    `${T('By standard')} Pick a TEKS. You get the student expectation, readiness or supporting, vertical alignment, released STAAR items, and every lesson that teaches it, with its dates.`,
    `${T('STAAR performance')} Statewide percent correct on each released item, sortable. Filter to readiness standards or items under 50%.`,
-   `${T('Teaching moves')} For every TEKS from Grade 6 through Algebra I: common misconceptions, what concrete–representational–abstract looks like, assessing and advancing questions for Tiers 1, 2, and 3, and student sentence stems. It opens on the standard you picked and lists only the standards vertically aligned to it (uncheck the box to see every standard). Print any standard as a reference sheet.`,
+   `${T('Teaching moves')} For every TEKS from Grade 6 through Algebra I: common misconceptions, what concrete–representational–abstract looks like, assessing and advancing questions for Tiers 1, 2, and 3, and student sentence stems. It opens on the standard you picked and lists only the standards vertically aligned to it (uncheck the box to see every standard). Print any standard as a reference sheet. <b>These are suggestions only, not a complete list, and not for evaluating teachers.</b>`,
    `${T('Full grid')} The whole dot chart: lessons down the side, TEKS across the top.`,
+   `<b>Hide key</b> and <b>Hide labels</b> at the bottom of the menu give the page more room. Both are remembered on this device.`,
    `<b>Academic vocabulary</b> sits under each standard: words new to the grade and words students already know (★ = used on STAAR). ${T('By lesson')} lists each lesson's new words, and the ${T('Calendar')} can show them too.`,
    `Search by TEKS code (8.5I) or by a word (slope, ratio, reciprocal). Copy the address bar to share a standard: it opens the same course and TEKS.`],
   try:[['std','Open a sample standard'],['cal','Go to this week']]},
@@ -2950,6 +2961,7 @@ const HELP=[
    `Open the readiness standard in ${T('By standard')}. Read the vertical alignment so you know the prior-grade skills students bring.`,
    `During: compare the objective, the task, and the exit ticket with the student expectation's verb and content.`,
    `After: in the feedback conversation, show a released item and its most-chosen wrong answer. Ask: "Would your students get this one? What would trip them up?"`],
+  soon:'<b>Please note:</b> Teaching moves are suggestions to support planning and coaching conversations. They are not a complete list, and they are not meant for evaluating teacher instruction or performance.',
   look:['Planning evidence: the lesson is aligned to the TEKS the IPC lists for that day.','Content evidence: questions and tasks reach the depth of the released items, not only recall.','Monitoring evidence: the teacher checks for the misconception behind the most-chosen wrong answer.'],
   try:[['std','Open a sample standard'],['perf','See items under 50%']]},
  {id:'planning',title:'Planning',sub:'Partially covered standards',who:'PLCs · teachers · coaches',
@@ -2996,6 +3008,17 @@ const HELP=[
    `Connect to the process standards in every grade (for example 6.1D–G and A.1D–G): communicate, analyze, and justify mathematical ideas.`],
   look:['Teacher-led: the teacher asks, one student answers, the teacher evaluates.','Student-focused: students respond to each other, compare strategies, and critique reasoning.','Questions ask why and how, not only what.'],
   try:[['std','Find a discussion prompt']]},
+ {id:'moves',title:'Teaching moves',sub:'Suggestions for planning and coaching',who:'Teachers · PLCs · coaches · interventionists',
+  why:'Ideas to plan from: the misconceptions students often bring, what concrete–representational–abstract can look like, questions to ask at each tier, and sentence stems for students.',
+  steps:[`Pick a TEKS anywhere in the tool, then open ${T('Teaching moves')}. It opens on that standard, and the list on the left shows only the standards vertically aligned to it.`,
+   `<b>Common misconceptions</b>: what students think, why, and one move to try. Plan a question or task that would surface each one.`,
+   `<b>Concrete → Representational → Abstract</b>: possible tools and models for each stage, and what connected student work can look like.`,
+   `<b>Probing questions</b>: assessing questions find out what a student is thinking; advancing questions move the student forward. Tier 2 and Tier 3 rows offer smaller steps and more support.`,
+   `<b>Sentence stems</b>: copy them onto an anchor chart or the student page with the <b>Copy sentence stems</b> button.`,
+   `Use <b>Print this standard</b> to bring a reference sheet to a PLC.`],
+  look:['Choose what fits your students and your curriculum. Leave the rest.','Adapt questions and stems to your students\u2019 language needs.'],
+  soon:'<b>Please note:</b> Teaching moves are suggestions to support planning and coaching conversations. They are not a complete list, and they are not meant for evaluating teacher instruction or performance. They are general best practice, not tied to any curriculum, and should be adapted by the teacher.',
+  try:[['moves','Open Teaching moves']]},
  {id:'cra',title:'CRA and student work',sub:'Models and representations',who:'Teachers · coaches · interventionists',
   why:'Concrete–Representational–Abstract: students move from objects, to drawings and models, to symbols. The tool already shows the models the TEKS name and the representations STAAR uses.',
   steps:[`Open a TEKS and read the vertical alignment. Earlier grades' wording often names the model ("using concrete objects", "pictorial models", "number lines").`,
@@ -3003,7 +3026,7 @@ const HELP=[
    `Plan the path: which concrete tool, which representation, and when students move to the equation.`,
    `On a walk, look at student work. Can you see the representation, and the connection to the symbols?`],
   look:['Concrete: manipulatives such as two-color counters or algebra tiles, used with purpose.','Representational: drawings and models (tape diagrams, double number lines, area models) that students make, not only see.','Abstract: equations and expressions students connect back to the model.'],
-  soon:'<b>Planned next:</b> a short note for each lesson with the CRA model it uses, an example of strong student work, and discourse prompts. Tell me which course to start with.',
+  soon:'For CRA ideas for one standard (tools, models, and how student work connects them), open the standard in '+T('Teaching moves')+'. Those ideas are suggestions only, not a complete list.',
   try:[['std','Open a sample standard']]}
 ];
 function helpTry(a){
@@ -3012,12 +3035,13 @@ function helpTry(a){
   if(a==='std'){ if(STD.has(code)) selectStd(code); else showView('std'); window.scrollTo(0,0); }
   else if(a==='cal'){ const tw=weekOfDate(todayISO()); if(tw) calGoto(tw.q,tw.wk); else showView('cal'); }
   else if(a==='perf'){ showView('perf'); const c=$('pLow'); if(c&&!c.checked){ c.checked=true; buildPerfTable(); } window.scrollTo(0,0); }
+  else if(a==='moves'){ showView('moves'); if(!mvSel){ const c=SAMPLE[COURSE.key]; if(MOVES_IDX.has(c)) openMoves(c); } window.scrollTo(0,0); }
   else { showView(a); window.scrollTo(0,0); }
 }
 function helpShow(id){
   const h=HELP.find(x=>x.id===id)||HELP[0];
   $('hnav').querySelectorAll('button').forEach(b=>b.setAttribute('aria-current',b.dataset.h===h.id));
-  let html=`<button class="hclose" id="hclose">Close ✕</button><h3>${h.title}</h3><p class="who">${h.who} · examples open in <b>${COURSE.name}</b></p><p class="why">${h.why}</p><h4>${h.id==='tour'?'The tabs':'Steps'}</h4><ol>${h.steps.map(s=>`<li>${s}</li>`).join('')}</ol>`;
+  let html=`<button class="hclose" id="hclose">Close ✕</button><h3>${h.title}</h3><p class="who">${h.who} · examples open in <b>${COURSE.name}</b></p><p class="why">${h.why}</p><h4>${h.id==='tour'?'The views':'Steps'}</h4><ol>${h.steps.map(s=>`<li>${s}</li>`).join('')}</ol>`;
   if(h.look) html+=`<h4>Look for</h4><ul>${h.look.map(s=>`<li>${s}</li>`).join('')}</ul>`;
   if(h.soon) html+=`<div class="soon">${h.soon}</div>`;
   html+=`<div class="trybar">${h.try.map(([a,l],i)=>`<button class="${i?'alt':''}" data-try="${a}">${l} →</button>`).join('')}</div>`;
@@ -3042,7 +3066,7 @@ const FOOT={
 function legendHTML(){
   const k=COURSE.key, ex=k==='a7', g6=k==='g6';
   const al=k.startsWith('a1'); const smp=g6?['6.4B','6.4C','6.14D']:al?['A.5A','A.5B','']:['8.5I','8.5H','8.12E'];
-  return `<span class="lab">Key</span><span><i class="sample R">${smp[0]}</i>readiness standard</span><span><i class="sample">${smp[1]}</i>supporting standard</span>${smp[2]?`<span><i class="sample U">${smp[2]}</i>not assessed on STAAR</span>`:''}<span class="sep" aria-hidden="true"></span><span><i class="dot F"></i>${g6?'lesson focus standard':'fully covered in the lesson'}</span><span><i class="dot"></i>${g6?'also addressed in the lesson':'partially covered'}</span>${ex?'<span><i class="dot I"></i>TEKS listed on the IPC (Grade 7 lesson)</span>':''}<span class="sep" aria-hidden="true"></span><span><i class="when">Q1 Wk 6 · Sept 14</i>when the lesson is on the 2026-27 IPC</span>${g6||al?'':'<span><i class="when re">revisited</i>SMC 3 response day</span>'}`;
+  return `<button class="keyx" onclick="setKey(false)" title="Hide the key (bring it back from the menu)" style="order:99">Hide key ✕</button><span class="lab">Key</span><span><i class="sample R">${smp[0]}</i>readiness standard</span><span><i class="sample">${smp[1]}</i>supporting standard</span>${smp[2]?`<span><i class="sample U">${smp[2]}</i>not assessed on STAAR</span>`:''}<span class="sep" aria-hidden="true"></span><span><i class="dot F"></i>${g6?'lesson focus standard':'fully covered in the lesson'}</span><span><i class="dot"></i>${g6?'also addressed in the lesson':'partially covered'}</span>${ex?'<span><i class="dot I"></i>TEKS listed on the IPC (Grade 7 lesson)</span>':''}<span class="sep" aria-hidden="true"></span><span><i class="when">Q1 Wk 6 · Sept 14</i>when the lesson is on the 2026-27 IPC</span>${g6||al?'':'<span><i class="when re">revisited</i>SMC 3 response day</span>'}`;
 }
 const SUB={g6:'Texas Math Solution (Carnegie Learning) · standards ↔ lessons · Grade 6 STAAR',a7:'Carnegie Grade 8 lessons with Grade 7 lessons placed in · standards ↔ lessons · Grade 8 STAAR',g8:'Texas Math Solution (Carnegie Learning) · standards ↔ lessons · Grade 8 STAAR',a1ms:'Texas Math Solution (Carnegie Learning) · middle school Algebra I IPC · Algebra I EOC',a1hs:'Texas Math Solution (Carnegie Learning) · high school Algebra I IPC (A/B block) · Algebra I EOC'};
 const TESTS={g6:[['6','Grade 6 STAAR'],['7','Grade 7 STAAR (reference)']],a7:[['8','Grade 8 STAAR'],['7','Grade 7 STAAR (reference)']],g8:[['8','Grade 8 STAAR']],a1ms:[['A','Algebra I EOC']],a1hs:[['A','Algebra I EOC']]};
