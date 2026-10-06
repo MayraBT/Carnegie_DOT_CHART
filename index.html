@@ -311,6 +311,7 @@
   .kbd{font-size:12px;border:1px solid var(--line);border-radius:4px;padding:0 5px;color:var(--ink-2)}
   /* ---------- teaching moves ---------- */
   .mvf{margin-bottom:12px}
+  @media (max-width:820px){table.ptab{display:block;overflow-x:auto;max-width:100%}}
   #mvStrands .chip.anchor{box-shadow:0 0 0 2px #fff,0 0 0 4px var(--focus)}
   #mvDetail h4.mvh{margin:22px 0 8px;font-size:15px;color:var(--teal-deep);display:flex;align-items:center;gap:8px}
   #mvDetail h4.mvh .n{font-size:12px;font-weight:700;background:var(--teal);color:#fff;border-radius:999px;width:22px;height:22px;display:inline-grid;place-items:center}
@@ -433,6 +434,7 @@
       <label id="pGwrap">Test: <select id="pG"></select></label>
       <label><input type="checkbox" id="pR"> Readiness only</label>
       <label><input type="checkbox" id="pLow"> Items under 50% only</label>
+      <span class="qtog" id="pQ" aria-label="Taught in quarter">Taught in: <button data-q="1" aria-pressed="false">Q1</button><button data-q="2" aria-pressed="false">Q2</button><button data-q="3" aria-pressed="false">Q3</button><button data-q="4" aria-pressed="false">Q4</button></span>
     </div>
     <table class="ptab" id="ptab"></table>
   </section>
@@ -2754,7 +2756,7 @@ function renderACP(code){
   return h+its.map(renderACPItem).join('')+'</div>';
 }
 function buildACPTable(){
-  const rows=DATA.standards.map(s=>({s,its:acpFor(s.code),n:BY_STD.get(s.code).length})).filter(r=>r.its.length&&(!lens||lens.fam.has(r.s.code))&&(!$('pR').checked||r.s.type==='R'));
+  const rows=DATA.standards.map(s=>({s,its:acpFor(s.code),n:BY_STD.get(s.code).length})).filter(r=>r.its.length&&(!lens||lens.fam.has(r.s.code))&&(!$('pR').checked||r.s.type==='R')&&(!pQsel.size||[...quartersOf(r.s.code)].some(q=>pQsel.has(q))));
   let html='<thead><tr><th>TEKS</th><th>Type</th><th>Example items</th><th>Lessons</th></tr></thead><tbody>';
   for(const r of rows){
     const les=BY_STD.get(r.s.code).map(({L,k})=>`<div><button class="lk" data-id="${L.id}" title="${esc(L.sub)}"><i class="dot ${k}"></i>${esc(L.title)}</button> <span class="qs">M${L.m}·T${L.t}·L${L.l}</span></div>`).join('')||'<span class="qs">none</span>';
@@ -2787,7 +2789,7 @@ function buildPerfTable(){
     const P=PERF[s.code]||[]; const y26=P.filter(d=>d.year===2026), y25=P.filter(d=>d.year===2025);
     const avg=a=>a.length?Math.round(a.reduce((x,d)=>x+(d.pct??0),0)/a.length):null;
     return {s,y26,y25,a26:avg(y26),a25:avg(y25),n:BY_STD.get(s.code).length,tested:P.length>0};
-  }).filter(r=>r.tested && (!lens||lens.fam.has(r.s.code)) && (!$('pR').checked||r.s.type==='R') && (!$('pLow').checked||[...r.y26,...r.y25].some(d=>d.pct!=null&&d.pct<50)));
+  }).filter(r=>r.tested && (!lens||lens.fam.has(r.s.code)) && (!$('pR').checked||r.s.type==='R') && (!$('pLow').checked||[...r.y26,...r.y25].some(d=>d.pct!=null&&d.pct<50))&&(!pQsel.size||[...quartersOf(r.s.code)].some(q=>pQsel.has(q))));
   const codeKey=c=>c.split('.').map((p,i)=>i?p.padStart(3,'0'):p).join('.');
   const keyf={code:r=>codeKey(r.s.code),type:r=>r.s.type,a26:r=>r.a26??-1,a25:r=>r.a25??-1,n:r=>r.n};
   rows.sort((a,b)=>{ const ka=keyf[pSort.key](a), kb=keyf[pSort.key](b); return (ka>kb?1:ka<kb?-1: (pSort.key==='code'?0:(codeKey(a.s.code)>codeKey(b.s.code)?1:-1)))*pSort.dir; });
@@ -2804,6 +2806,8 @@ function buildPerfTable(){
   $('ptab').querySelectorAll('button.lk').forEach(b=>b.addEventListener('click',()=>openLesson(b.dataset.id)));
 }
 ['pR','pLow','pG'].forEach(id=>$(id).addEventListener('change',buildPerfTable));
+var pQsel=new Set();
+$('pQ').querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>{ const q=+b.dataset.q; pQsel.has(q)?pQsel.delete(q):pQsel.add(q); b.setAttribute('aria-pressed',pQsel.has(q)); buildPerfTable(); }));
 
 /* ---------- by lesson ---------- */
 function buildModList(){
@@ -3002,7 +3006,7 @@ const HELP=[
   steps:[`${T('Calendar')} The IPC day by day. Today is outlined in teal, and the days that teach the TEKS you picked are outlined in amber.`,
    `${T('By lesson')} Every lesson with its TEKS: ● fully covered, ○ partially covered. Each lesson shows when it is on the IPC.`,
    `${T('By standard')} Pick a TEKS. You get the student expectation, readiness or supporting, vertical alignment, released STAAR items, and every lesson that teaches it, with its dates.`,
-   `${T('STAAR performance')} Statewide percent correct on each released item, sortable. Filter to readiness standards or items under 50%. For Geometry and Algebra II, which have no STAAR EOC, this view is called ${T('Example items')} and shows the Dallas ISD ACP Example items (2025-26) by TEKS.`,
+   `${T('STAAR performance')} Statewide percent correct on each released item, sortable. Filter to readiness standards, items under 50%, or standards taught in a quarter (Q1–Q4). For Geometry and Algebra II, which have no STAAR EOC, this view is called ${T('Example items')} and shows the Dallas ISD ACP Example items (2025-26) by TEKS.`,
    `${T('Teaching moves')} For every TEKS from Grade 6 through Algebra I: common misconceptions, what concrete–representational–abstract looks like, assessing and advancing questions for Tiers 1, 2, and 3, and student sentence stems. It opens on the standard you picked and lists only the standards vertically aligned to it (uncheck the box to see every standard). Print any standard as a reference sheet. <b>These are suggestions only, not a complete list, and not for evaluating teachers.</b>`,
    `${T('Full grid')} The whole dot chart: lessons down the side, TEKS across the top.`,
    `<b>Hide key</b> and <b>Hide labels</b> at the bottom of the menu give the page more room. Both are remembered on this device.`,
