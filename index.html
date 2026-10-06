@@ -541,7 +541,7 @@ function mvRender(code){
   let h=`<p class="code">${m.code}<span class="tag ${m.t}">${TYPE_NAME[m.t]}</span><span class="tag">${MV_GNAME[code.split('.')[0]]}</span></p>
   <p class="desc">${esc(m.d)}</p>
   <p class="mvdisc">Look-fors to understand the lesson · suggestions, not a complete list · not for evaluating teacher instruction or performance</p>
-  <div class="mvact">${inCourse?`<button data-std="${code}">Open in By standard (lessons, STAAR items) →</button>`:''}<button data-print>Print this standard</button><button data-copy>Copy sentence stems</button></div>
+  <div class="mvact">${inCourse?`<button data-std="${code}">Open in By standard (lessons, ${/^(G|2A)\./.test(code)?'Example items':'STAAR items'}) →</button>`:''}<button data-print>Print this standard</button><button data-copy>Copy sentence stems</button></div>
   <div class="glance"><h4>Look-fors at a glance</h4>
     <div class="gl"><b>You might see</b><span>${esc(m.cra.look)}</span></div>
     <div class="gl"><b>You might hear students say</b><span>${m.stems.slice(0,3).map(x=>'“'+esc(x)+'”').join(' ')}</span></div>
