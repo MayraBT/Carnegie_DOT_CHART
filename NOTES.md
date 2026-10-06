@@ -5,7 +5,7 @@ Single-file tool: everything lives in `index.html`, with released-item images in
 ## Courses now in the tool
 Middle school: 6th Advanced (`g6`), 7th Advanced (`a7`), Grade 8 (`g8`), Algebra I MS (`a1ms`).
 High school: Algebra I HS (`a1hs`), Algebra I HS Advanced (`a1hsadv`), Geometry (`geo`), Geometry Advanced (`geoadv`), Algebra II (`a2`), Algebra II Advanced (`a2adv`). All have Q1–Q4 IPCs.
-Still optional: lead4ward Academic Vocabulary for Geometry and Algebra II.
+Vocabulary, scaffold, IPCs and Example items are loaded for every course.
 
 ## Where the data lives in index.html
 | Constant | What it holds | Source |
@@ -14,7 +14,7 @@ Still optional: lead4ward Academic Vocabulary for Geometry and Algebra II.
 | `TEKS` | student expectation text | 19 TAC §111 |
 | `PERF` | released STAAR items by TEKS: % correct, answer choices, `img` path | lead4ward IQ Tool (2025, 2026) |
 | `SCAF` (+ `SCAF_HS`) | vertical alignment clusters | lead4ward TEKS Scaffold (Grades 6–8, Algebra I, Geometry, Algebra II) |
-| `VOCAB` | academic vocabulary by TEKS | lead4ward Academic Vocabulary |
+| `VOCAB` | academic vocabulary by TEKS (HS blocks appended right after it) | lead4ward Academic Vocabulary (Grades 6–8, Algebra I, Geometry, Algebra II) |
 | `MOVES` | Teaching moves (look-fors, misconceptions, CRA, tiered questions, stems) for 279 TEKS, Grade 6–Algebra II | written for the tool; general best practice |
 | `GEO_DATA`, `A2_DATA` + `Object.assign(COURSES, …)` | high school courses (on-level and Advanced share one dot chart) | Carnegie dot charts + 2026-27 IPCs |
 | `ACP`, `ACP_SETS` | Dallas ISD ACP Example items 2025-26 (Semesters 1 and 2) by TEKS: key, type, `img` | Assessment Department Example Sets |
