@@ -5,7 +5,7 @@ Single-file tool: everything lives in `index.html`, with released-item images in
 ## Courses now in the tool
 Middle school: 6th Advanced (`g6`), 7th Advanced (`a7`), Grade 8 (`g8`), Algebra I MS (`a1ms`).
 High school: Algebra I HS (`a1hs`), Algebra I HS Advanced (`a1hsadv`), Geometry (`geo`), Geometry Advanced (`geoadv`), Algebra II (`a2`), Algebra II Advanced (`a2adv`). All have Q1–Q4 IPCs.
-Vocabulary, scaffold, IPCs and Example items are loaded for every course.
+Vocabulary, scaffold, IPCs and Example items are loaded for every course. `TIG`: course → lesson id → Google Drive file id of the teacher version, read from the weekly IPCs (Q1–Q2) through the Google Drive connector; add Q3–Q4 the same way when the weeklies are released.
 
 ## Where the data lives in index.html
 | Constant | What it holds | Source |
