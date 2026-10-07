@@ -13,7 +13,7 @@ Vocabulary, scaffold, IPCs and Example items are loaded for every course. `TIG`:
 | `COURSES` | per course: modules, lessons, TEKS marks (dot chart), IPC pacing and calendar | Carnegie dot chart + 2026-27 IPCs |
 | `TEKS` | student expectation text | 19 TAC §111 |
 | `PERF` | released STAAR items by TEKS: % correct, answer choices, `img` path | lead4ward IQ Tool (2025, 2026) |
-| `DIST`, `DIST_META` | Dallas ISD results on the 2026 released STAAR items (Grade 6, Grade 8, Algebra I EOC), keyed `<grade>_<item #>`: `p` % correct (full credit), `w` most-chosen wrong answer, `part` % partial credit | SchoolCity Item Analysis – All Items, Assessment Level State, 2025-26 roster |
+| `DIST`, `DIST_META` | Dallas ISD results on released STAAR items (2026: Grade 6, Grade 8, Algebra I EOC; 2025: Algebra I EOC), keyed `<grade>_<year>_<item #>`: `p` % correct (full credit), `w` most-chosen wrong answer, `part` % partial credit | SchoolCity Item Analysis – All Items, Assessment Level State, 2025-26 roster |
 | `SCAF` (+ `SCAF_HS`) | vertical alignment clusters | lead4ward TEKS Scaffold (Grades 6–8, Algebra I, Geometry, Algebra II) |
 | `VOCAB` | academic vocabulary by TEKS (HS blocks appended right after it) | lead4ward Academic Vocabulary (Grades 6–8, Algebra I, Geometry, Algebra II) |
 | `MOVES` | Teaching moves (look-fors, misconceptions, CRA, tiered questions, stems) for 279 TEKS, Grade 6–Algebra II | written for the tool; general best practice |
