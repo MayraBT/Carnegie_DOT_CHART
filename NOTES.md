@@ -5,7 +5,7 @@ Single-file tool: everything lives in `index.html`, with released-item images in
 ## Courses now in the tool
 Middle school: 6th Advanced (`g6`), 7th Advanced (`a7`), Grade 8 (`g8`), Algebra I MS (`a1ms`).
 High school: Algebra I HS (`a1hs`), Algebra I HS Advanced (`a1hsadv`), Geometry (`geo`), Geometry Advanced (`geoadv`), Algebra II (`a2`), Algebra II Advanced (`a2adv`). All have Q1–Q4 IPCs.
-Vocabulary, scaffold, IPCs and Example items are loaded for every course. `COURSE_LINKS`: course resources, weekly IPC links (keyed by week Monday) from the district IPC Quick Links sheet; HS module/topic overview links from the quarterly IPCs. Lesson TIG links still need the weekly IPCs as .docx.
+Vocabulary, scaffold, IPCs and Example items are loaded for every course.
 
 ## Where the data lives in index.html
 | Constant | What it holds | Source |
