@@ -180,6 +180,14 @@
   /* STAAR performance */
   .perf{margin:22px 0 8px;padding-top:14px;border-top:1px solid var(--line)}
   .perf h4{margin:0 0 4px;font-size:15px}
+  details.sec>summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:8px;border-radius:6px}
+  details.sec>summary::-webkit-details-marker{display:none}
+  details.sec>summary::before{content:'';width:7px;height:7px;border-right:2px solid var(--teal);border-bottom:2px solid var(--teal);transform:rotate(-45deg);transition:transform .15s;flex:none;margin-left:2px}
+  details.sec[open]>summary::before{transform:rotate(45deg)}
+  details.sec>summary h4{margin:0}
+  details.sec>summary:hover h4{color:var(--teal)}
+  details.sec[open]>summary{margin-bottom:6px}
+  .secbar{margin:14px 0 0;display:flex;flex-wrap:wrap;gap:6px}
   .perf .note{font-size:13px;color:var(--ink-3);margin:0 0 10px}
   .yr{margin:0 0 12px}
   .yr h5{margin:0 0 6px;font-size:13px;color:var(--ink-2);font-weight:700}
@@ -196,6 +204,7 @@
   .item .head .lab{width:78px;font-size:12.5px;font-weight:600;color:var(--ink-3)}
   .item .head .lab.dsd{color:#5b3fd1}
   .bar.d i{background:#7a5af5}
+  .bar.d i.p{background:#c9bcfb}
   .choices span.dhot{box-shadow:inset 0 -3px 0 #7a5af5}
   .dsd{color:#5b3fd1;font-weight:600}
   .dsd.low{color:#b3261e}
@@ -2623,7 +2632,7 @@ function renderDetail(code){
   html+=renderAlign(code);
   html+=renderAcross(code);
   html+=renderPerf(code);
-  html+='<div class="perf"><h4>Where and when it is taught</h4></div>';
+  html+='<div class="perf"><h4>Where and when it is taught</h4>';
   if(hits.length){
     const infos=hits.map(h=>paceInfo(h.L.id)); const sched=infos.filter(Boolean);
     if(sched.length){
@@ -2646,11 +2655,32 @@ function renderDetail(code){
     }
     html+='</div>';
   }
+  html+='</div>';
   host.innerHTML=html;
+  foldSections(host);
   host.querySelectorAll('.lesson').forEach(b=>b.addEventListener('click',()=>openLesson(b.dataset.id)));
   host.querySelectorAll('.va button[data-code]').forEach(b=>b.addEventListener('click',()=>selectStd(b.dataset.code)));
   const lb=$('lensBtn'); if(lb) lb.addEventListener('click',()=>{ setLens(lens&&lens.code===code?null:code); renderDetail(code); });
   host.querySelectorAll('table.across [data-go]').forEach(b=>b.addEventListener('click',()=>{ if(!lens||lens.code!==code) lens={code,from:COURSE.key,fam:familyOf(code)}; const v=document.querySelector('.view.on').id.slice(5); loadCourse(b.dataset.go); showView(v); window.scrollTo(0,0); }));
+}
+/* By standard: every section opens and closes; closed sections stay closed from standard to standard */
+let secClosed=new Set(); try{ secClosed=new Set(JSON.parse(localStorage.getItem('teks678-secs')||'[]')); }catch(e){}
+function saveSecs(){ try{ localStorage.setItem('teks678-secs',JSON.stringify([...secClosed])); }catch(e){} }
+function foldSections(host){
+  const secs=[...host.children].filter(d=>d.classList.contains('perf')&&d.firstElementChild&&d.firstElementChild.tagName==='H4');
+  if(!secs.length) return;
+  for(const d of secs){
+    const h=d.firstElementChild, key=h.textContent.split(' · ')[0].trim();
+    const det=document.createElement('details'); det.className='sec'; det.dataset.sec=key; det.open=!secClosed.has(key);
+    const sum=document.createElement('summary'); sum.appendChild(h); det.appendChild(sum);
+    while(d.firstChild) det.appendChild(d.firstChild);
+    d.appendChild(det);
+    det.addEventListener('toggle',()=>{ det.open?secClosed.delete(key):secClosed.add(key); saveSecs(); });
+  }
+  const bar=document.createElement('p'); bar.className='secbar';
+  bar.innerHTML='<button class="chip" data-a="0">Collapse all sections</button> <button class="chip" data-a="1">Expand all</button>';
+  bar.querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>host.querySelectorAll('details.sec').forEach(x=>x.open=b.dataset.a==='1')));
+  host.insertBefore(bar,secs[0]);
 }
 function gradeOf(c){ return c.split('.')[0]; }
 function gRank(g){ return g==='2A'?11:g==='G'?10:g==='A'?9:g==='K'?0:+g; }
@@ -2747,7 +2777,7 @@ function pctClass(p){ return p!=null && p<50 ? 'pct low':'pct'; }
 function renderItem(d,code){
   let stat=''; const di=code?distOf(code,d):null;
   const lab=t=>di?`<span class="brk"></span><span class="lab${t==='Dallas ISD'?' dsd':''}">${t}</span>`:'';
-  const dline=di?`${lab('Dallas ISD')}<div class="bar d"><i style="width:${di.p}%"></i></div><span class="${pctClass(di.p)}">${di.p}%</span>${di.part?`<span class="credit">full credit · ${di.part}% partial</span>`:''}`:'';
+  const dline=di?`${lab('Dallas ISD')}<div class="bar d">${di.part?`<i class="p" style="width:${di.p+di.part}%"></i>`:''}<i style="width:${di.p}%"></i></div><span class="${pctClass(di.p)}">${di.p}%</span>${di.part?`<span class="credit">full credit · ${di.part}% partial</span>`:''}`:'';
   if(d.choices){
     stat=`${lab('Texas')}<div class="bar"><i style="width:${d.pct}%"></i></div><span class="${pctClass(d.pct)}">${d.pct}%</span>${di?'':'<span class="meta">chose the correct answer</span>'}${dline}`;
     stat+=`</div><div class="choices">${d.choices.map(c=>{ const dh=di&&di.w===c.c; return `<span class="${c.ok?'ok':''}${c.hot?' hot':''}${dh?' dhot':''}">${c.c}${c.ok?' ✓':''}${c.hot&&dh?' · most-chosen wrong, Texas and Dallas ISD':c.hot?' · most-chosen wrong'+(di?', Texas':''):dh?' · most-chosen wrong, Dallas ISD':''}</span>`; }).join('')}`;
@@ -3024,7 +3054,7 @@ const HELP=[
   why:'Pick a course from the course menu at the top (middle school and high school, including Geometry and Algebra II), then choose a view from the menu on the left. It opens on the Calendar. Every TEKS chip and lesson title is clickable, so you can jump between views.',
   steps:[`${T('Calendar')} The IPC day by day. Today is outlined in teal, and the days that teach the TEKS you picked are outlined in amber.`,
    `${T('By lesson')} Every lesson with its TEKS: ● fully covered, ○ partially covered. Each lesson shows when it is on the IPC. A <b>TIG ↗</b> button opens the teacher version of the lesson from the weekly IPC (Q1–Q2 so far; district Google sign-in required).`,
-   `${T('By standard')} Pick a TEKS. You get the student expectation, readiness or supporting, vertical alignment, released STAAR items, and every lesson that teaches it, with its dates.`,
+   `${T('By standard')} Pick a TEKS. You get the student expectation, readiness or supporting, vertical alignment, released STAAR items, and every lesson that teaches it, with its dates. Click a section title to open or close it; sections you close stay closed as you move between standards, and <b>Expand all</b> brings them back.`,
    `${T('STAAR performance')} Statewide percent correct on each released item, sortable, with Dallas ISD percent correct in purple on the 2026 items (Grade 6, Grade 8 and Algebra I). Filter to readiness standards, items under 50%, items where Dallas ISD scored below Texas, or standards taught in a quarter (Q1–Q4). For Geometry and Algebra II, which have no STAAR EOC, this view is called ${T('Example items')} and shows the Dallas ISD ACP Example items (2025-26) by TEKS.`,
    `${T('Teaching moves')} For every TEKS from Grade 6 through Algebra I: common misconceptions, what concrete–representational–abstract looks like, assessing and advancing questions for Tiers 1, 2, and 3, and student sentence stems. It opens on the standard you picked and lists only the standards vertically aligned to it (uncheck the box to see every standard). Print any standard as a reference sheet. <b>These are suggestions only, not a complete list, and not for evaluating teachers.</b>`,
    `${T('Full grid')} The whole dot chart: lessons down the side, TEKS across the top.`,
