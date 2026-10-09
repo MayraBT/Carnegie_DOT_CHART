@@ -2536,6 +2536,8 @@ $('keyTog').addEventListener('click',()=>setKey($('legend').classList.contains('
 try{ if(localStorage.getItem('teks678-nokey')) setKey(false); }catch(e){}
 try{ if(localStorage.getItem('teks678-slim')) setSlim(true); }catch(e){}
 function showView(v){
+  /* arriving at By standard from another view: show the collapsed outline */
+  if(v==='std' && !$('view-std').classList.contains('on')){ secState={code:sel,open:{}}; document.querySelectorAll('#detail details.sec').forEach(d=>d.open=false); }
   document.querySelectorAll('.tabs button[data-view]').forEach(b=>b.setAttribute('aria-selected',b.dataset.view===v));
   document.querySelectorAll('.view').forEach(s=>s.classList.toggle('on',s.id==='view-'+v));
   if(v==='grid') highlightGrid(true);
@@ -2628,7 +2630,7 @@ function matchStd(s,q){
 }
 /* click the selected standard again: clear the selection everywhere */
 function clearStd(){
-  const was=sel; sel=null;
+  const was=sel; sel=null; secState={code:null,open:{}};
   document.querySelectorAll('#strands .chip').forEach(b=>b.classList.remove('sel'));
   if(lens) setLens(null);
   renderDetail(null); highlightGrid(); lesMarked=null; markLessons();
@@ -2690,7 +2692,7 @@ function renderDetail(code){
 }
 /* By standard: sections start collapsed for each new standard; while the same standard stays selected, sections keep whatever the user opened or closed */
 try{ localStorage.removeItem('teks678-secs'); }catch(e){}
-let secState={code:null,open:{}};
+var secState={code:null,open:{}};
 function foldSections(host,code){
   if(secState.code!==code) secState={code,open:{}};
   const secs=[...host.children].filter(d=>d.classList.contains('perf')&&d.firstElementChild&&d.firstElementChild.tagName==='H4');
@@ -3097,7 +3099,7 @@ const HELP=[
   why:'Pick a course from the course menu at the top (middle school and high school, including Geometry and Algebra II), then choose a view from the menu on the left. It opens on the Calendar. Every TEKS chip and lesson title is clickable, so you can jump between views.',
   steps:[`${T('Calendar')} The IPC day by day. Today is outlined in teal, and the days that teach the TEKS you picked are outlined in amber.`,
    `${T('By lesson')} Every lesson with its TEKS: ● fully covered, ○ partially covered. Each lesson shows when it is on the IPC. A <b>TIG ↗</b> button opens the teacher version of the lesson from the weekly IPC (Q1–Q2 so far; district Google sign-in required).`,
-   `${T('By standard')} Pick a TEKS. The checkboxes above the standards narrow the list: readiness only, taught in this course, tested on STAAR, tested with a tech-enhanced item (any item type other than multiple choice), or taught in a quarter. You get the student expectation, readiness or supporting, vertical alignment, released STAAR items, and every lesson that teaches it, with its dates. Each standard opens as a short outline with every section collapsed; click a section title to open it, or <b>Expand all</b>. While you stay on that standard, the sections you opened or closed stay that way. An expanded released item turns green. <b>To clear everything, click the selected standard again.</b>`,
+   `${T('By standard')} Pick a TEKS. The checkboxes above the standards narrow the list: readiness only, taught in this course, tested on STAAR, tested with a tech-enhanced item (any item type other than multiple choice), or taught in a quarter. You get the student expectation, readiness or supporting, vertical alignment, released STAAR items, and every lesson that teaches it, with its dates. Each standard opens as a short outline with every section collapsed; click a section title to open it, or <b>Expand all</b>. While you work in By standard on that standard, the sections you opened stay open; each time you come back to By standard from another view, it starts collapsed again. An expanded released item turns green. <b>To clear everything, click the selected standard again.</b>`,
    `${T('STAAR performance')} Statewide percent correct on each released item, sortable, with Dallas ISD percent correct in purple (Grade 6 and Grade 8: 2026; Algebra I: 2025 and 2026). Filter to readiness standards, items under 50%, items where Dallas ISD scored below Texas, 1-point, 2-point, tech-enhanced or multiple choice items, or standards taught in a quarter (Q1–Q4). For 2-point items, choose whether the table shows full credit, half credit, or full or half credit; each 2-point item under ${T('By standard')} also has a full / half / no credit breakdown with the average points earned. For Geometry and Algebra II, which have no STAAR EOC, this view is called ${T('Example items')} and shows the Dallas ISD ACP Example items (2025-26) by TEKS.`,
    `${T('Teaching moves')} For every TEKS from Grade 6 through Algebra I: common misconceptions, what concrete–representational–abstract looks like, assessing and advancing questions for Tiers 1, 2, and 3, and student sentence stems. It opens on the standard you picked and lists only the standards vertically aligned to it (uncheck the box to see every standard). Print any standard as a reference sheet. <b>These are suggestions only, not a complete list, and not for evaluating teachers.</b>`,
    `${T('Full grid')} The whole dot chart: lessons down the side, TEKS across the top.`,
