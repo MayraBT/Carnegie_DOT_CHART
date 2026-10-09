@@ -33,6 +33,9 @@ ACP Example items: `items/acp_<set>_Q<nn>.jpg` — sets `geo_s1`, `geo_s2`, `a2_
 4. lead4ward Academic Vocabulary (optional)
 5. Item screenshots + data, if any (Geometry and Algebra II have no STAAR EOC)
 
+## Vertical performance
+`vertPerf(code)` groups the released items of every standard in `familyOf(code)` (lead4ward scaffold clusters) into grade bands 6, 7, 8 and Algebra I, with Texas and Dallas ISD averages. It appears above the STAAR performance table when a standard is selected and as the "Performance across grade bands" section in By standard.
+
 ## District data
 To add a year: in SchoolCity run Item Analysis – All Items with Assessment Level **State** for each test (Grade 6, Grade 8, Algebra I EOC) and save as Excel. Item numbers must match the released test in the IQ Tool. The "DISTRICT STAAR 24-25" reports are a different district test (different item order and count) and cannot be matched to the released items.
 

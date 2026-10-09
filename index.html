@@ -230,6 +230,65 @@
   .cluster{font-size:13px;color:var(--ink-3);margin:-8px 0 14px}
   /* performance table */
   .ptab{border-collapse:collapse;width:100%;font-size:14px}
+  /* vertical performance */
+  .vphead{display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center;justify-content:space-between}
+  .vphead .note{margin:0;flex:1 1 320px}
+  .vpyr{display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden}
+  .vpyr button{border:0;background:var(--paper);padding:5px 10px;font:inherit;font-size:13px;color:var(--ink-2);cursor:pointer}
+  .vpyr button+button{border-left:1px solid var(--line)}
+  .vpyr button[aria-pressed="true"]{background:var(--teal-tint);color:var(--ink);font-weight:600}
+  .vpins{margin:12px 0 8px;padding-left:20px;font-size:14px;line-height:1.5}
+  .vpins li{margin:2px 0}
+  .vpleg{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:12.5px;color:var(--ink-2);margin:8px 0 2px}
+  .vpleg span{display:inline-flex;align-items:center;gap:6px}
+  .vpleg i{display:inline-block}
+  .vpleg .ktx{width:11px;height:11px;border-radius:50%;background:#008c84;box-shadow:0 0 0 2px #fff,0 0 0 3px #008c84}
+  .vpleg .kds{width:10px;height:10px;background:#7a5af5;transform:rotate(45deg)}
+  .vpleg .kit{width:7px;height:7px;border-radius:50%;background:#008c84;opacity:.35}
+  .vpleg .kme{width:8px;height:8px;border-radius:50%;background:#fff;border:2px solid var(--ink)}
+  .vpleg .k50 i{width:18px;border-top:2px dashed #b9c6c5}
+  .vpchart{position:relative}
+  .vpsvg{width:100%;height:auto;display:block;max-width:760px}
+  .vpsvg .gl{stroke:#e8eeed;stroke-width:1}
+  .vpsvg .g50{stroke:#b9c6c5;stroke-width:1.5;stroke-dasharray:5 4}
+  .vpsvg .ax{font-size:11px;fill:var(--ink-3)}
+  .vpsvg .bx{font-size:12.5px;fill:var(--ink-2);font-weight:600}
+  .vpsvg .it{fill:#008c84;fill-opacity:.32}
+  .vpsvg .it.mine{fill:#fff;fill-opacity:1;stroke:var(--ink);stroke-width:2}
+  .vpsvg .hit{fill:transparent;cursor:default}
+  .vpsvg text,.vpsvg line,.vpsvg .it,.vpsvg .ptx,.vpsvg .pds{pointer-events:none}
+  .vpsvg .ltx{stroke:#008c84;stroke-width:2.5}
+  .vpsvg .lds{stroke:#7a5af5;stroke-width:2.5;stroke-dasharray:1 0}
+  .vpsvg .ptx{fill:#008c84;stroke:#fff;stroke-width:2}
+  .vpsvg .pds{fill:#7a5af5;stroke:#fff;stroke-width:2}
+  .vpsvg .pds.part{fill:#fff;stroke:#7a5af5;stroke-width:2.5}
+  .vpleg .kdp{width:8px;height:8px;border:2px solid #7a5af5;background:#fff;transform:rotate(45deg)}
+  .vpsvg .vl{font-size:12.5px;font-weight:700;fill:var(--ink)}
+  .vptip{position:absolute;pointer-events:none;background:var(--ink);color:#fff;font-size:12.5px;line-height:1.35;padding:6px 9px;border-radius:6px;white-space:nowrap;z-index:5;box-shadow:0 2px 8px rgba(0,0,0,.18)}
+  .vpbands{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;margin:12px 0 4px}
+  .vpband{border:1px solid var(--line);border-radius:8px;padding:10px 12px;background:var(--paper)}
+  .vpband.cur{border-color:var(--teal);box-shadow:inset 0 3px 0 var(--teal)}
+  .vpbh{display:flex;justify-content:space-between;gap:8px;align-items:baseline;font-size:14px}
+  .vpbh span{font-size:12px;color:var(--ink-3)}
+  .vpbig{display:flex;gap:16px;align-items:flex-end;margin:6px 0 8px;font-size:24px;font-weight:700;line-height:1}
+  .vpbig small{display:block;font-size:11px;font-weight:600;margin-top:3px}
+  .vpbig .tx{color:var(--ink)} .vpbig .tx small{color:#00736c}
+  .vpbig .ds{color:var(--ink)} .vpbig .ds small{color:#5b3fd1}
+  .vpbig .na{font-size:11.5px;font-weight:400;color:var(--ink-3);line-height:1.3;max-width:150px}
+  .vpband ul{list-style:none;margin:0;padding:0}
+  .vpband li{display:grid;grid-template-columns:62px 1fr auto 18px;gap:6px;align-items:center;font-size:12.5px;padding:2px 0}
+  .vpband li .mk{font-size:12px;padding:1px 6px;margin:0;min-width:0}
+  .vpband li .mk.me{outline:2px solid var(--ink);outline-offset:1px}
+  .vbar{position:relative;height:8px;background:#eceff0;border-radius:4px}
+  .vbar i{position:absolute;left:0;top:0;bottom:0;background:#008c84;border-radius:4px}
+  .vbar b{position:absolute;top:-3px;width:3px;height:14px;margin-left:-1.5px;background:#7a5af5;border-radius:2px;box-shadow:0 0 0 1px #fff}
+  .vv{font-weight:600;white-space:nowrap} .vv em{font-style:normal;color:#5b3fd1}
+  .vn{color:var(--ink-3);text-align:right;font-size:11px}
+  .vpcav{margin-top:8px}
+  .vpbox{border:1px solid var(--line);border-radius:10px;padding:14px 16px;margin:0 0 16px;background:var(--paper-2)}
+  .vpbox h4{margin:0 0 6px;font-size:16px}
+  .vpbox .vpband{background:var(--paper)}
+  .vphint{font-size:13.5px;color:var(--ink-3);margin:0 0 12px;padding:10px 12px;border:1px dashed var(--line);border-radius:8px}
   .ptab th,.ptab td{padding:7px 8px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
   .ptab th{position:sticky;top:0;background:var(--paper);font-size:13px;color:var(--ink-2);cursor:pointer;user-select:none}
   .ptab th.sorted{color:var(--teal-deep)}
@@ -469,6 +528,7 @@
       <label id="pCrWrap">2-point items show: <select id="pCr"><option value="full">Full credit</option><option value="half">Half credit</option><option value="any">Full or half credit</option></select></label>
       <span class="qtog" id="pQ" aria-label="Taught in quarter">Taught in: <button data-q="1" aria-pressed="false">Q1</button><button data-q="2" aria-pressed="false">Q2</button><button data-q="3" aria-pressed="false">Q3</button><button data-q="4" aria-pressed="false">Q4</button></span>
     </div>
+    <div id="vpWrap"></div>
     <table class="ptab" id="ptab"></table>
   </section>
   <section class="view on" id="view-cal">
@@ -2542,6 +2602,7 @@ function showView(v){
   document.querySelectorAll('.view').forEach(s=>s.classList.toggle('on',s.id==='view-'+v));
   if(v==='grid') highlightGrid(true);
   if(v==='cal') buildCal();
+  if(v==='perf') renderVPWrap();
   if(v==='les') markLessons(true);
   if(v==='moves'){ if(sel && MOVES_IDX.has(sel) && sel!==mvSel){ mvSel=sel; mvAnchor=sel; } buildMoves(); }
 }
@@ -2635,6 +2696,7 @@ function clearStd(){
   if(lens) setLens(null);
   renderDetail(null); highlightGrid(); lesMarked=null; markLessons();
   if($('view-cal').classList.contains('on')) buildCal();
+  renderVPWrap();
   try{ history.replaceState(null,'','#'+COURSE.key); }catch(e){}
 }
 function selectStd(code, push=true){
@@ -2659,6 +2721,7 @@ function renderDetail(code){
   html+=renderAlign(code);
   html+=renderAcross(code);
   html+=renderPerf(code);
+  html+=`<div class="perf"><h4>Performance across grade bands</h4>${vertPerf(code)}</div>`;
   html+='<div class="perf"><h4>Where and when it is taught</h4>';
   if(hits.length){
     const infos=hits.map(h=>paceInfo(h.L.id)); const sched=infos.filter(Boolean);
@@ -2685,6 +2748,7 @@ function renderDetail(code){
   html+='</div>';
   host.innerHTML=html;
   foldSections(host,code);
+  host.querySelectorAll('.vp').forEach(el=>bindVP(el,c=>selectStd(c)));
   host.querySelectorAll('.lesson').forEach(b=>b.addEventListener('click',()=>openLesson(b.dataset.id)));
   host.querySelectorAll('.va button[data-code]').forEach(b=>b.addEventListener('click',()=>selectStd(b.dataset.code)));
   const lb=$('lensBtn'); if(lb) lb.addEventListener('click',()=>{ setLens(lens&&lens.code===code?null:code); renderDetail(code); });
@@ -2863,6 +2927,103 @@ function renderPerf(code){
     html+=`<div class="yr"><h5>${y} STAAR</h5>`+(its.length?its.map(d=>renderItem(d,code)).join(''):`<p class="notested">Not tested in ${y}.</p>`)+'</div>';
   }
   return html+'</div>';
+}
+
+/* ---------- vertical performance: how a concept is tested across grade bands ---------- */
+var vpYear='both';
+const VP_TX='#008c84', VP_DS='#7a5af5', VP_BANDS=['6','7','8','A'];
+function vpMean(a){ return a.length?a.reduce((s,v)=>s+v,0)/a.length:null; }
+function vpData(code){
+  const fam=familyOf(code), bands=[];
+  for(const g of VP_BANDS){
+    const seen=new Set(), its=[];
+    for(const x of fam){ if(gradeOf(x)!==g) continue;
+      for(const d of (PERF[x]||[])){ if(d.pct==null) continue; if(vpYear!=='both'&&d.year!==+vpYear) continue;
+        const k=d.year+'_'+d.q; if(seen.has(k)) continue; seen.add(k); its.push({code:x,d,e:distOf(x,d)}); } }
+    if(!its.length) continue;
+    const de=its.filter(i=>i.e);
+    const stds=[...new Set(its.map(i=>i.code))].map(c=>{ const a=its.filter(i=>i.code===c), b=a.filter(i=>i.e); return {code:c,n:a.length,tx:vpMean(a.map(i=>i.d.pct)),ds:b.length?vpMean(b.map(i=>i.e.p)):null}; }).sort((a,b)=>a.tx-b.tx);
+    bands.push({g,its,tx:vpMean(its.map(i=>i.d.pct)),ds:de.length?vpMean(de.map(i=>i.e.p)):null,txs:de.length?vpMean(de.map(i=>i.d.pct)):null,dn:de.length,stds});
+  }
+  const other=[...new Set([...fam].map(gradeOf))].filter(g=>!VP_BANDS.includes(g));
+  return {fam,bands,other};
+}
+function vpBandName(g){ return g==='A'?'Algebra I':'Grade '+g; }
+function vpInsights(code,D){
+  const B=D.bands, out=[], r=v=>Math.round(v);
+  if(B.length>1) out.push(`Texas average on related items: ${B.map(b=>`<b>${vpBandName(b.g)} ${r(b.tx)}%</b>`).join(' → ')}.`);
+  else if(B.length) out.push(`Released items for this concept appear only in ${vpBandName(B[0].g)} (Texas average <b>${r(B[0].tx)}%</b>).`);
+  let drop=null; for(let i=1;i<B.length;i++){ const dd=B[i].tx-B[i-1].tx; if(!drop||dd<drop.dd) drop={dd,a:B[i-1],b:B[i]}; }
+  if(drop&&drop.dd<=-5) out.push(`The steepest drop is from ${vpBandName(drop.a.g)} to ${vpBandName(drop.b.g)}: <b>−${Math.abs(r(drop.dd))} points</b>.`);
+  else if(B.length>1){ const lo=B.reduce((a,b)=>b.tx<a.tx?b:a); out.push(`Hardest grade band for this concept: <b>${vpBandName(lo.g)}</b> (${r(lo.tx)}%).`); }
+  const all=B.flatMap(b=>b.stds.map(s=>({...s,g:b.g}))).filter(s=>s.code!==code);
+  if(all.length){ const h=all.reduce((a,b)=>b.tx<a.tx?b:a); out.push(`Hardest related standard: <b>${h.code}</b> (${vpBandName(h.g)}, ${r(h.tx)}% on ${h.n} item${h.n>1?'s':''}).`); }
+  const gaps=B.filter(b=>b.ds!=null).map(b=>{ const p=b.its.filter(i=>i.e); return {g:b.g,gap:vpMean(p.map(i=>i.e.p-i.d.pct))}; });
+  if(gaps.length) out.push(`Dallas ISD compared with Texas on the same items: ${gaps.map(x=>`${vpBandName(x.g)} <b>${x.gap>=0?'+':'−'}${Math.abs(r(x.gap))}</b>`).join(' · ')} points.`);
+  const me=B.find(b=>b.g===gradeOf(code)), own=me&&me.stds.find(s=>s.code===code);
+  if(own){ const diff=own.tx-me.tx; out.push(`${code} itself averaged <b>${r(own.tx)}%</b> (Texas), ${Math.abs(diff)<3?'about the same as':diff<0?r(-diff)+' points below':r(diff)+' points above'} the ${vpBandName(me.g)} related average.`); }
+  else if(STD.has(code)&&VP_BANDS.includes(gradeOf(code))) out.push(`${code} itself has no released item${vpYear==='both'?'':' in '+vpYear}; the bands show its related standards.`);
+  return out;
+}
+function vpChart(code,D){
+  const narrow=window.innerWidth<640, B=D.bands, n=B.length, W=narrow?360:640, H=narrow?230:250, L=narrow?42:44, R=narrow?8:16, T=18, Bm=34, pw=W-L-R, ph=H-T-Bm;
+  const x=i=>L+(i+0.5)*pw/n, y=v=>T+(1-v/100)*ph, r=v=>Math.round(v);
+  let s=`<svg class="vpsvg" viewBox="0 0 ${W} ${H}" role="img" aria-label="Average percent correct on related released items by grade band, Texas and Dallas ISD">`;
+  for(const v of [0,25,50,75,100]) s+=`<line x1="${L}" x2="${W-R}" y1="${y(v)}" y2="${y(v)}" class="${v===50?'g50':'gl'}"/><text x="${L-8}" y="${y(v)+4}" class="ax" text-anchor="end">${v}%</text>`;
+  B.forEach((b,i)=>{ s+=`<text x="${x(i)}" y="${H-10}" class="ax bx" text-anchor="middle">${vpBandName(b.g)}</text>`; });
+  /* every item, faint, Texas */
+  B.forEach((b,i)=>{ b.its.forEach((it,k)=>{ const jx=x(i)+(((k*37)%23)-11)*Math.min(1.6,pw/n/60), yy=y(it.d.pct), mine=it.code===code;
+    const tip=`${it.code} · ${it.d.year} Q${it.d.q} · ${esc(it.d.itemType)}|Texas ${it.d.pct}%${it.e?' · Dallas ISD '+it.e.p+'%':''}`;
+    s+=`<circle cx="${jx}" cy="${yy}" r="${mine?4.5:3.2}" class="it${mine?' mine':''}"/><circle cx="${jx}" cy="${yy}" r="8" class="hit" data-tip="${tip}"/>`; }); });
+  /* averages: lines then points */
+  const seg=(key,cls)=>{ let p=''; for(let i=1;i<n;i++){ if(B[i-1][key]!=null&&B[i][key]!=null) p+=`<line x1="${x(i-1)}" y1="${y(B[i-1][key])}" x2="${x(i)}" y2="${y(B[i][key])}" class="${cls}"/>`; } return p; };
+  s+=seg('tx','ltx')+seg('ds','lds');
+  B.forEach((b,i)=>{
+    s+=`<circle cx="${x(i)}" cy="${y(b.tx)}" r="6.5" class="ptx"/><circle cx="${x(i)}" cy="${y(b.tx)}" r="11" class="hit" data-tip="${vpBandName(b.g)} · Texas average|${r(b.tx)}% on ${b.its.length} item${b.its.length>1?'s':''}"/>`;
+    s+=`<text x="${x(i)-11}" y="${y(b.tx)-9}" class="vl" text-anchor="end">${r(b.tx)}%</text>`;
+    if(b.ds!=null){ const yy=y(b.ds), xx=x(i);
+      s+=`<path d="M${xx} ${yy-7} L${xx+7} ${yy} L${xx} ${yy+7} L${xx-7} ${yy} Z" class="pds${b.dn<b.its.length?' part':''}"/><circle cx="${xx}" cy="${yy}" r="11" class="hit" data-tip="${vpBandName(b.g)} · Dallas ISD average|${r(b.ds)}% on ${b.dn} item${b.dn>1?'s':''}${b.dn<b.its.length?' of '+b.its.length:''} · Texas ${r(b.txs)}% on the same item${b.dn>1?'s':''}"/>`;
+      s+=`<text x="${xx+11}" y="${yy+17}" class="vl ds">${r(b.ds)}%</text>`; }
+  });
+  return s+'</svg>';
+}
+function vertPerf(code){
+  const D=vpData(code), yr=vpYear;
+  const seg=`<span class="vpyr" role="group" aria-label="Years">${[['both','2025 + 2026'],['2026','2026'],['2025','2025']].map(([v,l])=>`<button data-vy="${v}" aria-pressed="${yr===v}">${l}</button>`).join('')}</span>`;
+  let h=`<div class="vp" data-code="${code}"><div class="vphead"><p class="note">Released STAAR items for <b>${code}</b> and the standards in its lead4ward scaffold clusters, grouped by grade band.</p>${seg}</div>`;
+  if(!D.bands.length) return h+`<p class="notested">No released STAAR item for ${code} or its related standards${yr==='both'?'':' in '+yr}.${D.other.some(g=>g==='G'||g==='2A')?' Geometry and Algebra II have no STAAR EOC.':''}</p></div>`;
+  h+=`<ul class="vpins">${vpInsights(code,D).map(t=>`<li>${t}</li>`).join('')}</ul>`;
+  h+=`<div class="vpleg"><span><i class="ktx"></i>Texas average</span><span><i class="kds"></i>Dallas ISD average</span>${D.bands.some(b=>b.ds!=null&&b.dn<b.its.length)?'<span><i class="kdp"></i>Dallas ISD, on only some of the items</span>':''}<span><i class="kit"></i>one released item (Texas)</span><span><i class="kme"></i>${code}'s own items</span><span class="k50"><i></i>50% line</span></div>`;
+  h+=`<div class="vpchart">${vpChart(code,D)}<div class="vptip" hidden></div></div>`;
+  h+='<div class="vpbands">';
+  for(const b of D.bands){
+    h+=`<div class="vpband${b.g===gradeOf(code)?' cur':''}"><div class="vpbh"><b>${vpBandName(b.g)}</b><span>${b.its.length} item${b.its.length>1?'s':''} · ${b.stds.length} standard${b.stds.length>1?'s':''}</span></div>`;
+    h+=`<div class="vpbig"><span class="tx">${Math.round(b.tx)}%<small>Texas</small></span>${b.ds!=null?`<span class="ds">${Math.round(b.ds)}%<small>Dallas ISD</small></span>${b.dn<b.its.length?`<span class="na">Dallas ISD data on ${b.dn} of ${b.its.length} items; Texas on those ${b.dn}: ${Math.round(b.txs)}%</span>`:''}`:`<span class="na">${b.g==='7'?'No Dallas ISD students take Grade 7 STAAR':'no Dallas ISD data'}</span>`}</div><ul>`;
+    for(const s of b.stds){ const t=STD.get(s.code);
+      const chip=STD.has(s.code)?`<button class="mk ${t.type}${s.code===code?' me':''}" data-vcode="${s.code}">${s.code}</button>`:`<span class="mk${s.code===code?' me':''}">${s.code}</span>`;
+      h+=`<li>${chip}<span class="vbar"><i style="width:${s.tx}%"></i>${s.ds!=null?`<b style="left:${s.ds}%"></b>`:''}</span><span class="vv">${Math.round(s.tx)}%${s.ds!=null?` <em>${Math.round(s.ds)}%</em>`:''}</span><span class="vn">${s.n}</span></li>`; }
+    h+='</ul></div>';
+  }
+  h+='</div>';
+  const other=D.other.filter(g=>g!=='3'&&g!=='4'&&g!=='5');
+  h+=`<p class="note vpcav">Each grade band is a different test, set of items, and group of students, so read this as <b>where the concept is hardest</b> along the progression, not as one cohort's growth. Averages are percent correct (full credit on 2-point items) across every related released item${yr==='both'?' from 2025 and 2026':' from '+yr}. Dallas ISD data covers 2026 (Grade 6, Grade 8, Algebra I) and 2025 (Algebra I), so when a band mixes years its Dallas ISD average uses fewer items; the Dallas ISD comparison above uses only the items both have.${D.other.some(g=>+g<6)?' Grades 3–5 standards in the same clusters are not in the tool’s item data.':''}${other.some(g=>g==='G'||g==='2A')?' Geometry and Algebra II have no STAAR EOC.':''}</p>`;
+  return h+'</div>';
+}
+function bindVP(el,onPick){
+  const code=el.dataset.code, tip=el.querySelector('.vptip'), box=el.querySelector('.vpchart');
+  el.querySelectorAll('[data-vy]').forEach(b=>b.addEventListener('click',()=>{ vpYear=b.dataset.vy; const w=document.createElement('div'); w.innerHTML=vertPerf(code); const n=w.firstElementChild; el.replaceWith(n); bindVP(n,onPick); }));
+  el.querySelectorAll('[data-vcode]').forEach(b=>b.addEventListener('click',()=>onPick(b.dataset.vcode)));
+  if(!box) return;
+  box.addEventListener('mousemove',e=>{ const t=e.target.closest('[data-tip]'); if(!t){ tip.hidden=true; return; }
+    const [a,c]=t.dataset.tip.split('|'); tip.innerHTML=`<b>${a}</b><br>${c}`; tip.hidden=false;
+    const rb=box.getBoundingClientRect(); let lx=e.clientX-rb.left+14, ly=e.clientY-rb.top-10; if(lx+tip.offsetWidth>rb.width) lx=e.clientX-rb.left-tip.offsetWidth-14; tip.style.left=lx+'px'; tip.style.top=ly+'px'; });
+  box.addEventListener('mouseleave',()=>tip.hidden=true);
+}
+function renderVPWrap(){
+  const w=$('vpWrap'); if(!w) return;
+  if(!sel||!STD.has(sel)){ w.innerHTML=`<p class="vphint">Select a standard (By standard, or click a code in the table) to see how students perform on it across grade bands.</p>`; return; }
+  w.innerHTML=`<div class="vpbox"><h4>Vertical performance · ${sel}</h4>${vertPerf(sel)}</div>`;
+  const el=w.querySelector('.vp'); bindVP(el,c=>{ selectStd(c); showView('perf'); });
 }
 
 /* ---------- performance table ---------- */
@@ -3100,7 +3261,7 @@ const HELP=[
   steps:[`${T('Calendar')} The IPC day by day. Today is outlined in teal, and the days that teach the TEKS you picked are outlined in amber.`,
    `${T('By lesson')} Every lesson with its TEKS: ● fully covered, ○ partially covered. Each lesson shows when it is on the IPC. A <b>TIG ↗</b> button opens the teacher version of the lesson from the weekly IPC (Q1–Q2 so far; district Google sign-in required).`,
    `${T('By standard')} Pick a TEKS. The checkboxes above the standards narrow the list: readiness only, taught in this course, tested on STAAR, tested with a tech-enhanced item (any item type other than multiple choice), or taught in a quarter. You get the student expectation, readiness or supporting, vertical alignment, released STAAR items, and every lesson that teaches it, with its dates. Each standard opens as a short outline with every section collapsed; click a section title to open it, or <b>Expand all</b>. While you work in By standard on that standard, the sections you opened stay open; each time you come back to By standard from another view, it starts collapsed again. An expanded released item turns green. <b>To clear everything, click the selected standard again.</b>`,
-   `${T('STAAR performance')} Statewide percent correct on each released item, sortable, with Dallas ISD percent correct in purple (Grade 6 and Grade 8: 2026; Algebra I: 2025 and 2026). Filter to readiness standards, items under 50%, items where Dallas ISD scored below Texas, 1-point, 2-point, tech-enhanced or multiple choice items, or standards taught in a quarter (Q1–Q4). For 2-point items, choose whether the table shows full credit, half credit, or full or half credit; each 2-point item under ${T('By standard')} also has a full / half / no credit breakdown with the average points earned. For Geometry and Algebra II, which have no STAAR EOC, this view is called ${T('Example items')} and shows the Dallas ISD ACP Example items (2025-26) by TEKS.`,
+   `${T('STAAR performance')} Statewide percent correct on each released item, sortable, with Dallas ISD percent correct in purple (Grade 6 and Grade 8: 2026; Algebra I: 2025 and 2026). Filter to readiness standards, items under 50%, items where Dallas ISD scored below Texas, 1-point, 2-point, tech-enhanced or multiple choice items, or standards taught in a quarter (Q1–Q4). For 2-point items, choose whether the table shows full credit, half credit, or full or half credit; each 2-point item under ${T('By standard')} also has a full / half / no credit breakdown with the average points earned. For Geometry and Algebra II, which have no STAAR EOC, this view is called ${T('Example items')} and shows the Dallas ISD ACP Example items (2025-26) by TEKS. With a standard selected, <b>Vertical performance</b> at the top shows how students do on that concept across grade bands: every related released item from Grade 6 through Algebra I (same lead4ward scaffold clusters), the Texas and Dallas ISD average for each band, where the steepest drop is, and the hardest related standards. Hover a dot to see the item; click a code to re-center on it. The same view is the <b>Performance across grade bands</b> section in ${T('By standard')}.`,
    `${T('Teaching moves')} For every TEKS from Grade 6 through Algebra I: common misconceptions, what concrete–representational–abstract looks like, assessing and advancing questions for Tiers 1, 2, and 3, and student sentence stems. It opens on the standard you picked and lists only the standards vertically aligned to it (uncheck the box to see every standard). Print any standard as a reference sheet. <b>These are suggestions only, not a complete list, and not for evaluating teachers.</b>`,
    `${T('Full grid')} The whole dot chart: lessons down the side, TEKS across the top.`,
    `<b>Hide key</b> and <b>Hide labels</b> at the bottom of the menu give the page more room. Both are remembered on this device.`,
