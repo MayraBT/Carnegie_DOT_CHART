@@ -436,6 +436,7 @@
           <label><input type="checkbox" id="fCov"> Only standards taught in this course</label>
           <label id="f7wrap"><input type="checkbox" id="f7"> Grade 7 TEKS</label>
           <label><input type="checkbox" id="fTest"> <span id="fTestLab">Tested on 2025 or 2026 STAAR</span></label>
+          <label id="fTEwrap" title="Drag and drop, inline choice, multiselect, equation editor, hot spot, graphing, match table grid, number line"><input type="checkbox" id="fTE"> Tested with a tech-enhanced item</label>
           <span class="qtog" id="fQ" aria-label="Taught in quarter">Taught in: <button data-q="1" aria-pressed="false">Q1</button><button data-q="2" aria-pressed="false">Q2</button><button data-q="3" aria-pressed="false">Q3</button><button data-q="4" aria-pressed="false">Q4</button></span>
         </div>
         <div id="strands"></div>
@@ -464,7 +465,7 @@
       <label><input type="checkbox" id="pR"> Readiness only</label>
       <label><input type="checkbox" id="pLow"> Items under 50% only</label>
       <label id="pBelowWrap"><input type="checkbox" id="pBelow"> Dallas ISD below Texas</label>
-      <label id="pPtsWrap">Items: <select id="pPts"><option value="">All items</option><option value="1">1-point items</option><option value="2">2-point items</option></select></label>
+      <label id="pPtsWrap">Items: <select id="pPts"><option value="">All items</option><option value="1">1-point items</option><option value="2">2-point items</option><option value="te">Tech-enhanced items</option><option value="mc">Multiple choice items</option></select></label>
       <label id="pCrWrap">2-point items show: <select id="pCr"><option value="full">Full credit</option><option value="half">Half credit</option><option value="any">Full or half credit</option></select></label>
       <span class="qtog" id="pQ" aria-label="Taught in quarter">Taught in: <button data-q="1" aria-pressed="false">Q1</button><button data-q="2" aria-pressed="false">Q2</button><button data-q="3" aria-pressed="false">Q3</button><button data-q="4" aria-pressed="false">Q4</button></span>
     </div>
@@ -2581,6 +2582,8 @@ function buildStrands(){
     host.appendChild(d);
   }
 }
+/* tech-enhanced = any STAAR item type other than multiple choice */
+const isTE=d=>d.itemType!=='Multiple Choice';
 function applyStdFilters(){
   const onlyR=$('fR').checked, onlyCov=$('fCov').checked, g7=$('f7').checked;
   const q=query.trim().toLowerCase();
@@ -2591,6 +2594,7 @@ function applyStdFilters(){
     if(onlyCov && !BY_STD.get(s.code).length) show=false;
     if(!g7 && s.code.startsWith('7.')) show=false;
     if($('fTest').checked && !PERF[s.code] && !ACP[s.code]) show=false;
+    if($('fTE').checked && !(PERF[s.code]||[]).some(isTE)) show=false;
     if(lens && !lens.fam.has(s.code)) show=false;
     if(fQsel.size && ![...quartersOf(s.code)].some(q=>fQsel.has(q))) show=false;
     if(q && !matchStd(s,q)) show=false;
@@ -2867,7 +2871,7 @@ function buildPerfTable(){
   const tv=d=>{ if(d.points!==2) return d.pct; const c=d.credit||{}; return cr==='half'?(c.partial||0):cr==='any'?(c.full||0)+(c.partial||0):(c.full??d.pct); };
   const dv=e=>e&&(e.part!=null||e.p!=null)?(cr==='half'?(e.part||0):cr==='any'?e.p+(e.part||0):e.p):null;
   const dvOf=(code,d)=>{ const e=distOf(code,d); if(!e) return null; return d.points===2?dv(e):e.p; };
-  const keep=d=>!pts||d.points===+pts;
+  const keep=d=>!pts||(pts==='te'?isTE(d):pts==='mc'?!isTE(d):d.points===+pts);
   const rows=DATA.standards.filter(s=>s.code.startsWith(tg+'.')).map(s=>{
     const P=(PERF[s.code]||[]).filter(keep); const y26=P.filter(d=>d.year===2026), y25=P.filter(d=>d.year===2025);
     const avg=a=>a.length?Math.round(a.reduce((x,d)=>x+(tv(d)??0),0)/a.length):null;
@@ -2877,7 +2881,7 @@ function buildPerfTable(){
   const codeKey=c=>c.split('.').map((p,i)=>i?p.padStart(3,'0'):p).join('.');
   const keyf={code:r=>codeKey(r.s.code),type:r=>r.s.type,a26:r=>r.a26??-1,d26:r=>r.d26??-1,a25:r=>r.a25??-1,n:r=>r.n};
   rows.sort((a,b)=>{ const ka=keyf[pSort.key](a), kb=keyf[pSort.key](b); return (ka>kb?1:ka<kb?-1: (pSort.key==='code'?0:(codeKey(a.s.code)>codeKey(b.s.code)?1:-1)))*pSort.dir; });
-  const cell=(its,code)=>its.length?its.map(d=>{ const t=tv(d), e=dvOf(code,d), lowOK=d.points!==2||cr!=='half'; return `<div><span class="${lowOK&&t!=null&&t<50?'low':''}">${t??'—'}%</span>${e!=null?` <span class="dsd${lowOK&&e<50?' low':''}" title="Dallas ISD">${e}%</span>`:''} <span class="qs">Q${d.q} · ${d.choices?'MC':d.points===2?crLab:'full credit'}${d.points>1?' · '+d.points+'pt':''}</span></div>`; }).join(''):`<span class="qs">${pts?'no '+pts+'-point item':'not tested'}</span>`;
+  const cell=(its,code)=>its.length?its.map(d=>{ const t=tv(d), e=dvOf(code,d), lowOK=d.points!==2||cr!=='half'; return `<div><span class="${lowOK&&t!=null&&t<50?'low':''}">${t??'—'}%</span>${e!=null?` <span class="dsd${lowOK&&e<50?' low':''}" title="Dallas ISD">${e}%</span>`:''} <span class="qs">Q${d.q} · ${d.choices?'MC':(d.itemType+' · ')+(d.points===2?crLab:'full credit')}${d.points>1?' · '+d.points+'pt':''}</span></div>`; }).join(''):`<span class="qs">${pts==='te'?'no tech-enhanced item':pts==='mc'?'no multiple choice item':pts?'no '+pts+'-point item':'not tested'}</span>`;
   const hdr=[['code','TEKS'],['type','Type'],['a26',DIST_META[tg+'_2026']?'2026 items · Texas · <span class=\'dsd\'>Dallas ISD</span>':'2026 items'],['a25',DIST_META[tg+'_2025']?'2025 items · Texas · <span class=\'dsd\'>Dallas ISD</span>':'2025 items'],['n','Lessons']];
   let html='<thead><tr>'+hdr.map(([k,l])=>`<th data-k="${k}" class="${pSort.key===k?'sorted':''}">${l}${pSort.key===k?(pSort.dir>0?' ▲':' ▼'):''}</th>`).join('')+'</tr></thead><tbody>';
   for(const r of rows){
@@ -2890,7 +2894,7 @@ function buildPerfTable(){
   $('ptab').querySelectorAll('button.lk').forEach(b=>b.addEventListener('click',()=>openLesson(b.dataset.id)));
 }
 ['pR','pLow','pBelow','pG','pPts','pCr'].forEach(id=>$(id).addEventListener('change',buildPerfTable));
-$('pPts').addEventListener('change',()=>{ $('pCr').disabled=$('pPts').value==='1'; });
+$('pPts').addEventListener('change',()=>{ $('pCr').disabled=$('pPts').value==='1'||$('pPts').value==='mc'; });
 var pQsel=new Set();
 $('pQ').querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>{ const q=+b.dataset.q; pQsel.has(q)?pQsel.delete(q):pQsel.add(q); b.setAttribute('aria-pressed',pQsel.has(q)); buildPerfTable(); }));
 
@@ -3078,7 +3082,7 @@ function renderSearch(raw){
   host.innerHTML=html;
   host.querySelectorAll('[data-code]').forEach(b=>b.addEventListener('click',()=>selectStd(b.dataset.code)));
 }
-['fR','fCov','f7','fTest'].forEach(id=>$(id).addEventListener('change',applyStdFilters));
+['fR','fCov','f7','fTest','fTE'].forEach(id=>$(id).addEventListener('change',applyStdFilters));
 $('fQ').querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>{ const q=+b.dataset.q; fQsel.has(q)?fQsel.delete(q):fQsel.add(q); b.setAttribute('aria-pressed',fQsel.has(q)); applyStdFilters(); }));
 document.addEventListener('keydown',e=>{ if(e.key==='/' && document.activeElement!==$('q')){ e.preventDefault(); $('q').focus(); } });
 
@@ -3090,8 +3094,8 @@ const HELP=[
   why:'Pick a course from the course menu at the top (middle school and high school, including Geometry and Algebra II), then choose a view from the menu on the left. It opens on the Calendar. Every TEKS chip and lesson title is clickable, so you can jump between views.',
   steps:[`${T('Calendar')} The IPC day by day. Today is outlined in teal, and the days that teach the TEKS you picked are outlined in amber.`,
    `${T('By lesson')} Every lesson with its TEKS: ● fully covered, ○ partially covered. Each lesson shows when it is on the IPC. A <b>TIG ↗</b> button opens the teacher version of the lesson from the weekly IPC (Q1–Q2 so far; district Google sign-in required).`,
-   `${T('By standard')} Pick a TEKS. You get the student expectation, readiness or supporting, vertical alignment, released STAAR items, and every lesson that teaches it, with its dates. Every standard opens with all sections expanded; click a section title to close it, or <b>Collapse all sections</b> for a quick outline. An expanded released item turns green. <b>To clear everything, click the selected standard again.</b>`,
-   `${T('STAAR performance')} Statewide percent correct on each released item, sortable, with Dallas ISD percent correct in purple (Grade 6 and Grade 8: 2026; Algebra I: 2025 and 2026). Filter to readiness standards, items under 50%, items where Dallas ISD scored below Texas, 1-point or 2-point items, or standards taught in a quarter (Q1–Q4). For 2-point items, choose whether the table shows full credit, half credit, or full or half credit; each 2-point item under ${T('By standard')} also has a full / half / no credit breakdown with the average points earned. For Geometry and Algebra II, which have no STAAR EOC, this view is called ${T('Example items')} and shows the Dallas ISD ACP Example items (2025-26) by TEKS.`,
+   `${T('By standard')} Pick a TEKS. The checkboxes above the standards narrow the list: readiness only, taught in this course, tested on STAAR, tested with a tech-enhanced item (any item type other than multiple choice), or taught in a quarter. You get the student expectation, readiness or supporting, vertical alignment, released STAAR items, and every lesson that teaches it, with its dates. Every standard opens with all sections expanded; click a section title to close it, or <b>Collapse all sections</b> for a quick outline. An expanded released item turns green. <b>To clear everything, click the selected standard again.</b>`,
+   `${T('STAAR performance')} Statewide percent correct on each released item, sortable, with Dallas ISD percent correct in purple (Grade 6 and Grade 8: 2026; Algebra I: 2025 and 2026). Filter to readiness standards, items under 50%, items where Dallas ISD scored below Texas, 1-point, 2-point, tech-enhanced or multiple choice items, or standards taught in a quarter (Q1–Q4). For 2-point items, choose whether the table shows full credit, half credit, or full or half credit; each 2-point item under ${T('By standard')} also has a full / half / no credit breakdown with the average points earned. For Geometry and Algebra II, which have no STAAR EOC, this view is called ${T('Example items')} and shows the Dallas ISD ACP Example items (2025-26) by TEKS.`,
    `${T('Teaching moves')} For every TEKS from Grade 6 through Algebra I: common misconceptions, what concrete–representational–abstract looks like, assessing and advancing questions for Tiers 1, 2, and 3, and student sentence stems. It opens on the standard you picked and lists only the standards vertically aligned to it (uncheck the box to see every standard). Print any standard as a reference sheet. <b>These are suggestions only, not a complete list, and not for evaluating teachers.</b>`,
    `${T('Full grid')} The whole dot chart: lessons down the side, TEKS across the top.`,
    `<b>Hide key</b> and <b>Hide labels</b> at the bottom of the menu give the page more room. Both are remembered on this device.`,
@@ -3237,7 +3241,7 @@ function loadCourse(k,keepSel=true){
   $('subttl').textContent=SUB[k];
   document.title=COURSE.title;
   $('legend').innerHTML=legendHTML(); $('foot').innerHTML=FOOT[k];
-  { const hs=k==='geo'||k==='geoadv'||k==='a2'||k==='a2adv'; const pb=document.querySelector('.tabs button[data-view="perf"]'); pb.querySelector('.tn').textContent=hs?'Example items':'STAAR performance'; pb.querySelector('.th').textContent=hs?'ACP Example sets':'Released items'; pb.title=hs?'Example items — ACP Example sets 2025-26':'STAAR performance — Released items'; $('pIntro').textContent=hs?'Dallas ISD ACP Example items (2025-26), by TEKS. These are example items: they do not appear on the ACP. Click a code to open it.':'Statewide percent correct on each released STAAR item, by TEKS, with Dallas ISD results in purple (2026; Algebra I 2025 and 2026). Click a column header to sort; click a code to open it.'; $('pLow').parentElement.style.display=hs?'none':''; $('pBelowWrap').style.display=hs?'none':''; $('pPtsWrap').style.display=hs?'none':''; $('pCrWrap').style.display=hs?'none':''; $('fTestLab').textContent=hs?'Has an ACP Example item':'Tested on 2025 or 2026 STAAR'; }
+  { const hs=k==='geo'||k==='geoadv'||k==='a2'||k==='a2adv'; const pb=document.querySelector('.tabs button[data-view="perf"]'); pb.querySelector('.tn').textContent=hs?'Example items':'STAAR performance'; pb.querySelector('.th').textContent=hs?'ACP Example sets':'Released items'; pb.title=hs?'Example items — ACP Example sets 2025-26':'STAAR performance — Released items'; $('pIntro').textContent=hs?'Dallas ISD ACP Example items (2025-26), by TEKS. These are example items: they do not appear on the ACP. Click a code to open it.':'Statewide percent correct on each released STAAR item, by TEKS, with Dallas ISD results in purple (2026; Algebra I 2025 and 2026). Click a column header to sort; click a code to open it.'; $('pLow').parentElement.style.display=hs?'none':''; $('pBelowWrap').style.display=hs?'none':''; $('pPtsWrap').style.display=hs?'none':''; $('fTEwrap').style.display=hs?'none':''; if(hs) $('fTE').checked=false; $('pCrWrap').style.display=hs?'none':''; $('fTestLab').textContent=hs?'Has an ACP Example item':'Tested on 2025 or 2026 STAAR'; }
   $('f7wrap').style.display=(k==='g6'||k==='a7')?'':'none'; $('f7').checked=k==='a7';
   $('pG').innerHTML=TESTS[k].map(([v,l])=>`<option value="${v}">${l}</option>`).join(''); $('pGwrap').style.display=TESTS[k].length>1?'':'none';
   buildStrands(); buildModList(); lesMarked=null; buildGridCtl(); buildGrid(); buildPerfTable(); buildCal(); applyStdFilters(); applyLessonFilter();
