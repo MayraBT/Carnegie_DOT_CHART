@@ -285,6 +285,27 @@
   .vv{font-weight:600;white-space:nowrap} .vv em{font-style:normal;color:#5b3fd1}
   .vn{color:var(--ink-3);text-align:right;font-size:11px}
   .vpcav{margin-top:8px}
+  .vpitems{margin:16px 0 4px;padding-top:12px;border-top:1px solid var(--line)}
+  .vpihead{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;justify-content:space-between}
+  .vpihead h5{margin:0;font-size:15px}
+  .vpitems>.note{margin:6px 0 10px}
+  .vpcols{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;align-items:start}
+  .vpcol{min-width:0}
+  .vpch{display:flex;justify-content:space-between;align-items:baseline;font-weight:700;font-size:14px;padding:4px 2px 6px;border-bottom:2px solid var(--line);margin-bottom:8px}
+  .vpcol.cur .vpch{border-bottom-color:var(--teal)}
+  .vpch span{font-weight:400;font-size:12px;color:var(--ink-3)}
+  .item.vpi{padding:8px 10px;margin:0 0 6px;background:var(--paper)}
+  .item.vpi.mine{box-shadow:inset 3px 0 0 var(--ink)}
+  .vpi summary{cursor:pointer;list-style:none;display:flex;flex-direction:column;gap:3px}
+  .vpi summary::-webkit-details-marker{display:none}
+  .vpi1{display:flex;align-items:center;gap:6px;font-size:13.5px}
+  .vpi1 .mk{font-size:11.5px;padding:0 6px;margin:0}
+  .vpi2{font-size:12px;color:var(--ink-3)}
+  .vpi3{font-size:13px;font-weight:700} .vpi3 small{font-weight:400;color:var(--ink-3);font-size:11px;margin-right:4px}
+  .vpi3 .low{color:#b3261e} .vpi3 .dsd.low{color:#b3261e}
+  .vpibody{margin-top:8px} .vpibody p{margin:0 0 4px;font-size:12.5px;color:var(--ink-2);line-height:1.4}
+  .vpibody img{width:100%;height:auto;border:1px solid var(--line);border-radius:6px;background:#fff;margin-top:4px}
+  .vpmore{margin-top:2px}
   .vpbox{border:1px solid var(--line);border-radius:10px;padding:14px 16px;margin:0 0 16px;background:var(--paper-2)}
   .vpbox h4{margin:0 0 6px;font-size:16px}
   .vpbox .vpband{background:var(--paper)}
@@ -2930,7 +2951,35 @@ function renderPerf(code){
 }
 
 /* ---------- vertical performance: how a concept is tested across grade bands ---------- */
-var vpYear='both';
+var vpYear='both', vpSort='hard', vpAll={};
+/* items across grade bands: one column per band, item cards that open to the item image */
+function vpItems(code,D){
+  const sorts=[['hard','Hardest first'],['mine',code+' first'],['te','Tech-enhanced only']];
+  let h=`<div class="vpitems"><div class="vpihead"><h5>Items across grade bands</h5><span class="vpyr vpsort" role="group" aria-label="Order items">${sorts.map(([v,l])=>`<button data-vs="${v}" aria-pressed="${vpSort===v}">${l}</button>`).join('')}</span></div>`;
+  h+=`<p class="note">Open an item to see it. Compare the lowest-scoring item in each band to see how the concept changes as it moves up: the representation, the item type, and the number of steps.</p><div class="vpcols">`;
+  for(const b of D.bands){
+    let its=b.its.slice();
+    if(vpSort==='te') its=its.filter(i=>isTE(i.d));
+    its.sort((a,c)=>vpSort==='mine'?((a.code===code?0:1)-(c.code===code?0:1)||a.d.pct-c.d.pct):a.d.pct-c.d.pct);
+    const key=b.g, lim=vpAll[key]?its.length:4;
+    h+=`<div class="vpcol${b.g===gradeOf(code)?' cur':''}"><div class="vpch">${vpBandName(b.g)}<span>${its.length} item${its.length===1?'':'s'}</span></div>`;
+    if(!its.length) h+=`<p class="qs">${vpSort==='te'?'No tech-enhanced item':'No item'}.</p>`;
+    for(const it of its.slice(0,lim)){
+      const d=it.d, e=it.e, two=d.points===2, tc=d.credit||{};
+      h+=`<div class="item vpi${it.code===code?' mine':''}"><details><summary><span class="vpi1"><b>Q${d.q}</b> <span class="qs">${d.year}</span> <span class="mk ${(STD.get(it.code)||{}).type||''}">${it.code}</span></span>`
+        +`<span class="vpi2">${esc(d.itemType)}${two?' · 2 pts · % = full credit':''}</span>`
+        +`<span class="vpi3"><span class="${d.pct<50?'low':''}">${d.pct}%</span> <small>Texas</small>${e?` <span class="dsd${e.p<50?' low':''}">${e.p}%</span> <small>Dallas ISD</small>`:''}</span></summary>`
+        +`<div class="vpibody">${two?`<p class="qs">Texas: ${tc.full??d.pct}% full · ${tc.partial||0}% half · ${tc.no??'—'}% no credit${e?` · Dallas ISD: ${e.p}% full · ${e.part||0}% half`:''}</p>`:''}`
+        +`${d.choices?`<p class="qs">Most-chosen wrong answer: ${(d.choices.find(c=>c.hot)||{}).c||'—'} (Texas)${e&&e.w?` · ${e.w} (Dallas ISD)`:''}</p>`:''}`
+        +`${d.correct?`<p class="qs">Correct answer: ${esc(d.correct)}</p>`:''}`
+        +(d.img?`<img loading="lazy" alt="STAAR ${d.year} ${vpBandName(b.g)} question ${d.q}" src="${d.img}" onerror="this.outerHTML='<p class=&quot;notested&quot;>Item image not found.</p>'">`:'<p class="notested">Item image not available in the tool yet.</p>')
+        +`</div></details></div>`;
+    }
+    if(its.length>4) h+=`<button class="chip vpmore" data-vall="${key}">${vpAll[key]?'Show fewer':'Show all '+its.length}</button>`;
+    h+='</div>';
+  }
+  return h+'</div></div>';
+}
 const VP_TX='#008c84', VP_DS='#7a5af5', VP_BANDS=['6','7','8','A'];
 function vpMean(a){ return a.length?a.reduce((s,v)=>s+v,0)/a.length:null; }
 function vpData(code){
@@ -3005,13 +3054,17 @@ function vertPerf(code){
     h+='</ul></div>';
   }
   h+='</div>';
+  h+=vpItems(code,D);
   const other=D.other.filter(g=>g!=='3'&&g!=='4'&&g!=='5');
   h+=`<p class="note vpcav">Each grade band is a different test, set of items, and group of students, so read this as <b>where the concept is hardest</b> along the progression, not as one cohort's growth. Averages are percent correct (full credit on 2-point items) across every related released item${yr==='both'?' from 2025 and 2026':' from '+yr}. Dallas ISD data covers 2026 (Grade 6, Grade 8, Algebra I) and 2025 (Algebra I), so when a band mixes years its Dallas ISD average uses fewer items; the Dallas ISD comparison above uses only the items both have.${D.other.some(g=>+g<6)?' Grades 3–5 standards in the same clusters are not in the tool’s item data.':''}${other.some(g=>g==='G'||g==='2A')?' Geometry and Algebra II have no STAAR EOC.':''}</p>`;
   return h+'</div>';
 }
 function bindVP(el,onPick){
   const code=el.dataset.code, tip=el.querySelector('.vptip'), box=el.querySelector('.vpchart');
-  el.querySelectorAll('[data-vy]').forEach(b=>b.addEventListener('click',()=>{ vpYear=b.dataset.vy; const w=document.createElement('div'); w.innerHTML=vertPerf(code); const n=w.firstElementChild; el.replaceWith(n); bindVP(n,onPick); }));
+  const redraw=()=>{ const w=document.createElement('div'); w.innerHTML=vertPerf(code); const n=w.firstElementChild; el.replaceWith(n); bindVP(n,onPick); return n; };
+  el.querySelectorAll('[data-vy]').forEach(b=>b.addEventListener('click',()=>{ vpYear=b.dataset.vy; redraw(); }));
+  el.querySelectorAll('[data-vs]').forEach(b=>b.addEventListener('click',()=>{ vpSort=b.dataset.vs; redraw().querySelector('.vpitems').scrollIntoView({block:'nearest'}); }));
+  el.querySelectorAll('[data-vall]').forEach(b=>b.addEventListener('click',()=>{ const k=b.dataset.vall; vpAll[k]=!vpAll[k]; const n=redraw(); const c=n.querySelector(`[data-vall="${k}"]`); if(c) c.scrollIntoView({block:'nearest'}); }));
   el.querySelectorAll('[data-vcode]').forEach(b=>b.addEventListener('click',()=>onPick(b.dataset.vcode)));
   if(!box) return;
   box.addEventListener('mousemove',e=>{ const t=e.target.closest('[data-tip]'); if(!t){ tip.hidden=true; return; }
@@ -3261,7 +3314,7 @@ const HELP=[
   steps:[`${T('Calendar')} The IPC day by day. Today is outlined in teal, and the days that teach the TEKS you picked are outlined in amber.`,
    `${T('By lesson')} Every lesson with its TEKS: ● fully covered, ○ partially covered. Each lesson shows when it is on the IPC. A <b>TIG ↗</b> button opens the teacher version of the lesson from the weekly IPC (Q1–Q2 so far; district Google sign-in required).`,
    `${T('By standard')} Pick a TEKS. The checkboxes above the standards narrow the list: readiness only, taught in this course, tested on STAAR, tested with a tech-enhanced item (any item type other than multiple choice), or taught in a quarter. You get the student expectation, readiness or supporting, vertical alignment, released STAAR items, and every lesson that teaches it, with its dates. Each standard opens as a short outline with every section collapsed; click a section title to open it, or <b>Expand all</b>. While you work in By standard on that standard, the sections you opened stay open; each time you come back to By standard from another view, it starts collapsed again. An expanded released item turns green. <b>To clear everything, click the selected standard again.</b>`,
-   `${T('STAAR performance')} Statewide percent correct on each released item, sortable, with Dallas ISD percent correct in purple (Grade 6 and Grade 8: 2026; Algebra I: 2025 and 2026). Filter to readiness standards, items under 50%, items where Dallas ISD scored below Texas, 1-point, 2-point, tech-enhanced or multiple choice items, or standards taught in a quarter (Q1–Q4). For 2-point items, choose whether the table shows full credit, half credit, or full or half credit; each 2-point item under ${T('By standard')} also has a full / half / no credit breakdown with the average points earned. For Geometry and Algebra II, which have no STAAR EOC, this view is called ${T('Example items')} and shows the Dallas ISD ACP Example items (2025-26) by TEKS. With a standard selected, <b>Vertical performance</b> at the top shows how students do on that concept across grade bands: every related released item from Grade 6 through Algebra I (same lead4ward scaffold clusters), the Texas and Dallas ISD average for each band, where the steepest drop is, and the hardest related standards. Hover a dot to see the item; click a code to re-center on it. The same view is the <b>Performance across grade bands</b> section in ${T('By standard')}.`,
+   `${T('STAAR performance')} Statewide percent correct on each released item, sortable, with Dallas ISD percent correct in purple (Grade 6 and Grade 8: 2026; Algebra I: 2025 and 2026). Filter to readiness standards, items under 50%, items where Dallas ISD scored below Texas, 1-point, 2-point, tech-enhanced or multiple choice items, or standards taught in a quarter (Q1–Q4). For 2-point items, choose whether the table shows full credit, half credit, or full or half credit; each 2-point item under ${T('By standard')} also has a full / half / no credit breakdown with the average points earned. For Geometry and Algebra II, which have no STAAR EOC, this view is called ${T('Example items')} and shows the Dallas ISD ACP Example items (2025-26) by TEKS. With a standard selected, <b>Vertical performance</b> at the top shows how students do on that concept across grade bands: every related released item from Grade 6 through Algebra I (same lead4ward scaffold clusters), the Texas and Dallas ISD average for each band, where the steepest drop is, and the hardest related standards. Hover a dot to see the item; click a code to re-center on it. Below the cards, <b>Items across grade bands</b> lines up the released items for each band (hardest first, the selected standard's items first, or tech-enhanced only); open one to see the item. The same view is the <b>Performance across grade bands</b> section in ${T('By standard')}.`,
    `${T('Teaching moves')} For every TEKS from Grade 6 through Algebra I: common misconceptions, what concrete–representational–abstract looks like, assessing and advancing questions for Tiers 1, 2, and 3, and student sentence stems. It opens on the standard you picked and lists only the standards vertically aligned to it (uncheck the box to see every standard). Print any standard as a reference sheet. <b>These are suggestions only, not a complete list, and not for evaluating teachers.</b>`,
    `${T('Full grid')} The whole dot chart: lessons down the side, TEKS across the top.`,
    `<b>Hide key</b> and <b>Hide labels</b> at the bottom of the menu give the page more room. Both are remembered on this device.`,
