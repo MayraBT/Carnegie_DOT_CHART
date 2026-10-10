@@ -248,7 +248,8 @@
   .vpleg .kme{width:8px;height:8px;border-radius:50%;background:#fff;border:2px solid var(--ink)}
   .vpleg .k50 i{width:18px;border-top:2px dashed #b9c6c5}
   .vpchart{position:relative}
-  .vpsvg{width:100%;height:auto;display:block;max-width:760px}
+  .vpsvg{display:block;max-width:100%;height:auto}
+  @media (min-width:900px){ .vpbands.al,.vpcols.al{grid-template-columns:repeat(var(--n),minmax(0,1fr))} }
   .vpsvg .gl{stroke:#e8eeed;stroke-width:1}
   .vpsvg .g50{stroke:#b9c6c5;stroke-width:1.5;stroke-dasharray:5 4}
   .vpsvg .ax{font-size:11px;fill:var(--ink-3)}
@@ -2956,7 +2957,7 @@ var vpYear='both', vpSort='hard', vpAll={};
 function vpItems(code,D){
   const sorts=[['hard','Hardest first'],['mine',code+' first'],['te','Tech-enhanced only']];
   let h=`<div class="vpitems"><div class="vpihead"><h5>Items across grade bands</h5><span class="vpyr vpsort" role="group" aria-label="Order items">${sorts.map(([v,l])=>`<button data-vs="${v}" aria-pressed="${vpSort===v}">${l}</button>`).join('')}</span></div>`;
-  h+=`<p class="note">Open an item to see it. Compare the lowest-scoring item in each band to see how the concept changes as it moves up: the representation, the item type, and the number of steps.</p><div class="vpcols">`;
+  h+=`<p class="note">Open an item to see it. Compare the lowest-scoring item in each band to see how the concept changes as it moves up: the representation, the item type, and the number of steps.</p><div class="vpcols al" style="--n:${D.bands.length}">`;
   for(const b of D.bands){
     let its=b.its.slice();
     if(vpSort==='te') its=its.filter(i=>isTE(i.d));
@@ -3014,14 +3015,16 @@ function vpInsights(code,D){
   else if(STD.has(code)&&VP_BANDS.includes(gradeOf(code))) out.push(`${code} itself has no released item${vpYear==='both'?'':' in '+vpYear}; the bands show its related standards.`);
   return out;
 }
-function vpChart(code,D){
-  const narrow=window.innerWidth<640, B=D.bands, n=B.length, W=narrow?360:640, H=narrow?230:250, L=narrow?42:44, R=narrow?8:16, T=18, Bm=34, pw=W-L-R, ph=H-T-Bm;
-  const x=i=>L+(i+0.5)*pw/n, y=v=>T+(1-v/100)*ph, r=v=>Math.round(v);
-  let s=`<svg class="vpsvg" viewBox="0 0 ${W} ${H}" role="img" aria-label="Average percent correct on related released items by grade band, Texas and Dallas ISD">`;
-  for(const v of [0,25,50,75,100]) s+=`<line x1="${L}" x2="${W-R}" y1="${y(v)}" y2="${y(v)}" class="${v===50?'g50':'gl'}"/><text x="${L-8}" y="${y(v)+4}" class="ax" text-anchor="end">${v}%</text>`;
+/* drawn at the container's real width so each grade band sits directly above its card below */
+function vpChart(code,D,Wpx){
+  const B=D.bands, n=B.length, W=Math.max(300,Math.round(Wpx||640)), narrow=W<560, H=narrow?240:270, L=0, R=0, T=22, Bm=34, pw=W-L-R, ph=H-T-Bm;
+  const x=i=>L+(i+0.5)*pw/n, y=v=>T+(1-v/100)*ph, r=v=>Math.round(v), spread=Math.min(26,pw/n*0.22);
+  let s=`<svg class="vpsvg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" role="img" aria-label="Average percent correct on related released items by grade band, Texas and Dallas ISD">`;
+  for(let i=1;i<n;i++) s+=`<line x1="${L+i*pw/n}" x2="${L+i*pw/n}" y1="${T-6}" y2="${H-Bm+4}" class="gl"/>`;
+  for(const v of [0,25,50,75,100]) s+=`<line x1="${L}" x2="${W-R}" y1="${y(v)}" y2="${y(v)}" class="${v===50?'g50':'gl'}"/><text x="${L+2}" y="${y(v)-4}" class="ax">${v}%</text>`;
   B.forEach((b,i)=>{ s+=`<text x="${x(i)}" y="${H-10}" class="ax bx" text-anchor="middle">${vpBandName(b.g)}</text>`; });
   /* every item, faint, Texas */
-  B.forEach((b,i)=>{ b.its.forEach((it,k)=>{ const jx=x(i)+(((k*37)%23)-11)*Math.min(1.6,pw/n/60), yy=y(it.d.pct), mine=it.code===code;
+  B.forEach((b,i)=>{ b.its.forEach((it,k)=>{ const jx=x(i)+((((k*37)%23)-11)/11)*spread, yy=y(it.d.pct), mine=it.code===code;
     const tip=`${it.code} · ${it.d.year} Q${it.d.q} · ${esc(it.d.itemType)}|Texas ${it.d.pct}%${it.e?' · Dallas ISD '+it.e.p+'%':''}`;
     s+=`<circle cx="${jx}" cy="${yy}" r="${mine?4.5:3.2}" class="it${mine?' mine':''}"/><circle cx="${jx}" cy="${yy}" r="8" class="hit" data-tip="${tip}"/>`; }); });
   /* averages: lines then points */
@@ -3029,10 +3032,11 @@ function vpChart(code,D){
   s+=seg('tx','ltx')+seg('ds','lds');
   B.forEach((b,i)=>{
     s+=`<circle cx="${x(i)}" cy="${y(b.tx)}" r="6.5" class="ptx"/><circle cx="${x(i)}" cy="${y(b.tx)}" r="11" class="hit" data-tip="${vpBandName(b.g)} · Texas average|${r(b.tx)}% on ${b.its.length} item${b.its.length>1?'s':''}"/>`;
-    s+=`<text x="${x(i)-11}" y="${y(b.tx)-9}" class="vl" text-anchor="end">${r(b.tx)}%</text>`;
+    const up=b.ds==null||b.tx>=b.ds;
+    s+=`<text x="${x(i)-12}" y="${up?y(b.tx)-9:y(b.tx)+19}" class="vl" text-anchor="end">${r(b.tx)}%</text>`;
     if(b.ds!=null){ const yy=y(b.ds), xx=x(i);
       s+=`<path d="M${xx} ${yy-7} L${xx+7} ${yy} L${xx} ${yy+7} L${xx-7} ${yy} Z" class="pds${b.dn<b.its.length?' part':''}"/><circle cx="${xx}" cy="${yy}" r="11" class="hit" data-tip="${vpBandName(b.g)} · Dallas ISD average|${r(b.ds)}% on ${b.dn} item${b.dn>1?'s':''}${b.dn<b.its.length?' of '+b.its.length:''} · Texas ${r(b.txs)}% on the same item${b.dn>1?'s':''}"/>`;
-      s+=`<text x="${xx+11}" y="${yy+17}" class="vl ds">${r(b.ds)}%</text>`; }
+      s+=`<text x="${xx+12}" y="${up?yy+19:yy-9}" class="vl ds">${r(b.ds)}%</text>`; }
   });
   return s+'</svg>';
 }
@@ -3044,7 +3048,7 @@ function vertPerf(code){
   h+=`<ul class="vpins">${vpInsights(code,D).map(t=>`<li>${t}</li>`).join('')}</ul>`;
   h+=`<div class="vpleg"><span><i class="ktx"></i>Texas average</span><span><i class="kds"></i>Dallas ISD average</span>${D.bands.some(b=>b.ds!=null&&b.dn<b.its.length)?'<span><i class="kdp"></i>Dallas ISD, on only some of the items</span>':''}<span><i class="kit"></i>one released item (Texas)</span><span><i class="kme"></i>${code}'s own items</span><span class="k50"><i></i>50% line</span></div>`;
   h+=`<div class="vpchart">${vpChart(code,D)}<div class="vptip" hidden></div></div>`;
-  h+='<div class="vpbands">';
+  h+=`<div class="vpbands al" style="--n:${D.bands.length}">`;
   for(const b of D.bands){
     h+=`<div class="vpband${b.g===gradeOf(code)?' cur':''}"><div class="vpbh"><b>${vpBandName(b.g)}</b><span>${b.its.length} item${b.its.length>1?'s':''} · ${b.stds.length} standard${b.stds.length>1?'s':''}</span></div>`;
     h+=`<div class="vpbig"><span class="tx">${Math.round(b.tx)}%<small>Texas</small></span>${b.ds!=null?`<span class="ds">${Math.round(b.ds)}%<small>Dallas ISD</small></span>${b.dn<b.its.length?`<span class="na">Dallas ISD data on ${b.dn} of ${b.its.length} items; Texas on those ${b.dn}: ${Math.round(b.txs)}%</span>`:''}`:`<span class="na">${b.g==='7'?'No Dallas ISD students take Grade 7 STAAR':'no Dallas ISD data'}</span>`}</div><ul>`;
@@ -3067,11 +3071,15 @@ function bindVP(el,onPick){
   el.querySelectorAll('[data-vall]').forEach(b=>b.addEventListener('click',()=>{ const k=b.dataset.vall; vpAll[k]=!vpAll[k]; const n=redraw(); const c=n.querySelector(`[data-vall="${k}"]`); if(c) c.scrollIntoView({block:'nearest'}); }));
   el.querySelectorAll('[data-vcode]').forEach(b=>b.addEventListener('click',()=>onPick(b.dataset.vcode)));
   if(!box) return;
+  vpFit(el);
+  const det=el.closest('details'); if(det) det.addEventListener('toggle',()=>{ if(det.open) vpFit(el); });
   box.addEventListener('mousemove',e=>{ const t=e.target.closest('[data-tip]'); if(!t){ tip.hidden=true; return; }
     const [a,c]=t.dataset.tip.split('|'); tip.innerHTML=`<b>${a}</b><br>${c}`; tip.hidden=false;
     const rb=box.getBoundingClientRect(); let lx=e.clientX-rb.left+14, ly=e.clientY-rb.top-10; if(lx+tip.offsetWidth>rb.width) lx=e.clientX-rb.left-tip.offsetWidth-14; tip.style.left=lx+'px'; tip.style.top=ly+'px'; });
   box.addEventListener('mouseleave',()=>tip.hidden=true);
 }
+function vpFit(el){ const box=el.querySelector('.vpchart'); if(!box) return; const w=box.clientWidth; if(!w||+box.dataset.w===w) return; box.dataset.w=w; const svg=box.querySelector('svg'); const t=document.createElement('div'); t.innerHTML=vpChart(el.dataset.code,vpData(el.dataset.code),w); svg.replaceWith(t.firstElementChild); }
+{ let rt; window.addEventListener('resize',()=>{ clearTimeout(rt); rt=setTimeout(()=>document.querySelectorAll('.vp').forEach(vpFit),150); }); }
 function renderVPWrap(){
   const w=$('vpWrap'); if(!w) return;
   if(!sel||!STD.has(sel)){ w.innerHTML=`<p class="vphint">Select a standard (By standard, or click a code in the table) to see how students perform on it across grade bands.</p>`; return; }
