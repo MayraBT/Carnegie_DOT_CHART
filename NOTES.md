@@ -10,14 +10,14 @@ Vocabulary, scaffold, IPCs and Example items are loaded for every course. `TIG`:
 ## Where the data lives in index.html
 | Constant | What it holds | Source |
 |---|---|---|
-| `COURSES` | per course: modules, lessons, TEKS marks (dot chart), IPC pacing and calendar | Carnegie dot chart + 2026-27 IPCs |
+| `COURSES` | per course: modules, lessons, TEKS marks (TEKS chart), IPC pacing and calendar | Carnegie TEKS chart + 2026-27 IPCs |
 | `TEKS` | student expectation text | 19 TAC §111 |
 | `PERF` | released STAAR items by TEKS: % correct, answer choices, `img` path | lead4ward IQ Tool (2025, 2026) |
 | `DIST`, `DIST_META` | Dallas ISD results on released STAAR items (2026: Grade 6, Grade 8, Algebra I EOC; 2025: Algebra I EOC), keyed `<grade>_<year>_<item #>`: `p` % correct (full credit), `w` most-chosen wrong answer, `part` % partial credit | SchoolCity Item Analysis – All Items, Assessment Level State, 2025-26 roster |
 | `SCAF` (+ `SCAF_HS`) | vertical alignment clusters | lead4ward TEKS Scaffold (Grades 6–8, Algebra I, Geometry, Algebra II) |
 | `VOCAB` | academic vocabulary by TEKS (HS blocks appended right after it) | lead4ward Academic Vocabulary (Grades 6–8, Algebra I, Geometry, Algebra II) |
 | `MOVES` | Teaching moves (look-fors, misconceptions, CRA, tiered questions, stems) for 279 TEKS, Grade 6–Algebra II | written for the tool; general best practice |
-| `GEO_DATA`, `A2_DATA` + `Object.assign(COURSES, …)` | high school courses (on-level and Advanced share one dot chart) | Carnegie dot charts + 2026-27 IPCs |
+| `GEO_DATA`, `A2_DATA` + `Object.assign(COURSES, …)` | high school courses (on-level and Advanced share one TEKS Overview) | Carnegie TEKS Overviews + 2026-27 IPCs |
 | `ACP`, `ACP_SETS` | Dallas ISD ACP Example items 2025-26 (Semesters 1 and 2) by TEKS: key, type, `img` | Assessment Department Example Sets |
 | `HELP` | How to use guides | — |
 | `COURSE_ORDER`, `SAMPLE`, `FOOT`, `SUB`, `TESTS` | per-course labels and settings | — |
@@ -27,7 +27,7 @@ Vocabulary, scaffold, IPCs and Example items are loaded for every course. `TIG`:
 ACP Example items: `items/acp_<set>_Q<nn>.jpg` — sets `geo_s1`, `geo_s2`, `a2_s1`, `a2_s2`, `a2adv_s1`, `a2adv_s2` (2025-26); Geometry and Geometry Advanced share the geo sets. Published with the Grade 6 coordinator's approval; they are example items, not ACP items.
 
 ## To add a course, provide
-1. Carnegie dot chart (TEKS Overview) for the course
+1. Carnegie TEKS chart (TEKS Overview) for the course
 2. 2026-27 IPCs (all quarters; every version if the course has more than one)
 3. lead4ward TEKS Scaffold for the course
 4. lead4ward Academic Vocabulary (optional)

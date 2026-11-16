@@ -23,7 +23,7 @@ Start the new chat by pasting the prompt at the bottom. Everything a new session
     - filters: readiness, under 50%, Dallas ISD below Texas, 1-point / 2-point / tech-enhanced / multiple choice, quarter, and full vs half credit
     - the **Vertical performance** panel with **Items across grade bands**
   - **Teaching moves:** look-fors, misconceptions, CRA, tiered questions and stems for 279 TEKS from Grade 6 through Algebra II.
-  - **Full grid:** the dot chart.
+  - **Full grid:** the TEKS chart.
 
 ## 2. What the data is and whether it can go to teachers
 
@@ -31,7 +31,7 @@ Decide this before anything is shared outside the coordinator group.
 
 | Data in `index.html` | Source | Teacher-facing? |
 |---|---|---|
-| Lessons, TEKS marks, modules (`COURSES`, `GEO_DATA`, `A2_DATA`) | Carnegie Learning dot charts (TEKS Overview) | Likely fine inside the district; Carnegie content |
+| Lessons, TEKS marks, modules (`COURSES`, `GEO_DATA`, `A2_DATA`) | Carnegie Learning TEKS Overviews | Likely fine inside the district; Carnegie content |
 | IPC pacing and calendar | Dallas ISD 2026-27 IPCs | Yes (already teacher documents) |
 | TEKS text (`TEKS`) | 19 TAC §111 | Yes, public |
 | Released STAAR items and Texas percents (`PERF`, `items/g*_*.jpg`) | TEA released tests; percents from the lead4ward IQ Tool | Items are public (TEA). Percents come from a lead4ward product, so check the district's license |
@@ -89,13 +89,13 @@ Requirements for every generated item:
 - TIG links for Q3–Q4 once the weekly IPCs are released. Read them through the Google Drive connector, the same way as Q1–Q2.
 - Dallas ISD 2024-25 results for Grade 6 and Grade 8: SchoolCity "Item Analysis – All Items", STAAR 3-8 Math 24-25, Assessment Level State. Algebra I 2025 is already loaded.
 - ACP performance by TEKS for HS needs a standards-level report. The region summary reports had no TEKS per item.
-- The raw source files (IPC .docx, dot charts, IQ Tool PDFs, ACP PDFs) are **not** in the repo; only the extracted data is. Re-upload a source file only if a new session needs to re-extract from it.
+- The raw source files (IPC .docx, TEKS charts, IQ Tool PDFs, ACP PDFs) are **not** in the repo; only the extracted data is. Re-upload a source file only if a new session needs to re-extract from it.
 
 ---
 
 ## Prompt to paste in the new chat
 
-> I'm Mayra, Grade 6 Math Coordinator at Dallas ISD. Please add the GitHub repository MayraBT/Carnegie_DOT_CHART and read HANDOFF.md, then NOTES.md, before doing anything. That repo is my coordinator TEKS Lookup tool (Carnegie dot charts + 2026-27 IPCs for 10 courses, released STAAR items, Dallas ISD data, teaching moves).
+> I'm Mayra, Grade 6 Math Coordinator at Dallas ISD. Please add the GitHub repository MayraBT/Carnegie_DOT_CHART and read HANDOFF.md, then NOTES.md, before doing anything. That repo is my coordinator TEKS Lookup tool (Carnegie TEKS Overviews + 2026-27 IPCs for 10 courses, released STAAR items, Dallas ISD data, teaching moves).
 >
 > I want to re-engineer it into a teacher-facing IPC we can share with teachers. First:
 >
