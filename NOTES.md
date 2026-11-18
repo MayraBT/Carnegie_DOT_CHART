@@ -5,7 +5,7 @@ Single-file tool: everything lives in `index.html`, with released-item images in
 ## Courses now in the tool
 Middle school: 6th Advanced (`g6`), 7th Advanced (`a7`), Grade 8 (`g8`), Algebra I MS (`a1ms`).
 High school: Algebra I HS (`a1hs`), Algebra I HS Advanced (`a1hsadv`), Geometry (`geo`), Geometry Advanced (`geoadv`), Algebra II (`a2`), Algebra II Advanced (`a2adv`). All have Q1–Q4 IPCs.
-Vocabulary, scaffold, IPCs and Example items are loaded for every course. `TIG`: course → lesson id → Google Drive file id of the teacher version, read from the weekly IPCs through the Google Drive connector: Q1–Q2 for every course; Q3 (2026-27 Q3 weeklies) for Grade 6 Advanced, Grade 7 Advanced, Grade 8 and Algebra I (MS, HS, HS Advanced). Geometry and Algebra II Q3 weeklies were not posted yet; add them, and Q4, the same way.
+Vocabulary, scaffold, IPCs and Example items are loaded for every course. `TIG`: course → lesson id → Google Drive file id of the teacher version, read from the weekly IPCs through the Google Drive connector: every paced lesson, Q1–Q4. Sources: the 2026-27 weeklies where posted (Grade 6 Advanced has all of Q4); Geometry and Algebra II from the HS Carnegie TIG folders (each file matches the IPC Teacher link); Grade 7 Advanced Q4 and Algebra I Module 5 (End of Course performance tasks) from the 2025-26 Q4 weeklies; lessons Grade 7 Advanced and Grade 8 share (same Grade 8 lesson) reuse each other's file. Only lessons no IPC paces have no link: Gr 6 Adv M1.T1.L3, M1.T2.L1, M1.T4.L2, M3.T1.L5, M3.T2.L1, M4.T1.L5; Gr 7 Adv M2.T5.L1; Gr 8 M2.T3.L1, M3.T1.L4; Algebra I M1.T2.L4, M2.T3.L6.
 
 ## Where the data lives in index.html
 | Constant | What it holds | Source |

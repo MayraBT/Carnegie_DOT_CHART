@@ -10,7 +10,7 @@ Start the new chat by pasting the prompt at the bottom. Everything a new session
 - **Courses (10):** Accelerated Grade 6 (`g6`), 7th Advanced (`a7`), Grade 8 (`g8`), Algebra I MS (`a1ms`), Algebra I HS (`a1hs`), Algebra I HS Advanced (`a1hsadv`), Geometry (`geo`), Geometry Advanced (`geoadv`), Algebra II (`a2`), Algebra II Advanced (`a2adv`).
 - **Views (left menu):**
   - **Calendar:** 2026-27 IPC, Q1–Q4.
-  - **By lesson:** lessons with their TEKS, plus TIG links for Q1–Q3 (Q3 not yet for Geometry and Algebra II).
+  - **By lesson:** lessons with their TEKS, plus TIG links for every paced lesson, Q1–Q4.
   - **By standard:** TEKS detail in collapsible sections that start collapsed:
     - vocabulary
     - vertical alignment
@@ -86,7 +86,7 @@ Requirements for every generated item:
 
 ## 6. Open items carried over
 
-- TIG links for Geometry and Algebra II Q3, and for Q4, once those weekly IPCs are released. Read them through the Google Drive connector, the same way as Q1–Q3.
+- When the 2026-27 Q4 weeklies post, swap in their Teacher links where they differ (Grade 7 Advanced Q4 and Algebra I Module 5 currently use the 2025-26 files).
 - Dallas ISD 2024-25 results for Grade 6 and Grade 8: SchoolCity "Item Analysis – All Items", STAAR 3-8 Math 24-25, Assessment Level State. Algebra I 2025 is already loaded.
 - ACP performance by TEKS for HS needs a standards-level report. The region summary reports had no TEKS per item.
 - The raw source files (IPC .docx, TEKS charts, IQ Tool PDFs, ACP PDFs) are **not** in the repo; only the extracted data is. Re-upload a source file only if a new session needs to re-extract from it.
